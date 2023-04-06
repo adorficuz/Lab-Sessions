@@ -165,89 +165,151 @@ resfin = plot(dom,"Dependencia Lineal (a,h)")
 eta = 1.5
 alpha = 0.5*(resfin['Coeffs'][0])*(1/(eta-1))
 
-def postrunc(y):
-    stry = str(y)
-    digitsy = list()
-    for i,k in enumerate(stry):
-        digitsy.append(k)
-    digitsy.reverse()
-    digitsy.append('0')
-    digitsy.reverse()
-    newstry = ''.join(digitsy)
-    pos = 0
-    for i, k in enumerate(stry):
-        if k.isnumeric() == False:
-            pos += 1
-        elif k.isnumeric() and newstry[i].isnumeric() == False:
-            if int(newstry[i - 1]) == 0 and int(k) == 0:
-                pos += 1
-            elif (int(newstry[i - 1]) == 0 and (int(k) == 1 or (int(k) == 2 and int(stry[i - 1 + 1]) < 5))):
-                return (pos+2)
-            else:
-                return pos
-        elif k.isnumeric() and newstry[i + 2].isnumeric() == False:
-            if int(newstry[i]) == 0 and int(k) == 0:
-                pos += 1
-            elif (int(newstry[i]) == 0 and (int(k) == 1 or (int(k) == 2 and int(stry[i + 2]) < 5))):
-                return (pos+2)
-            else:
-                return(pos)
-        else:
-            if int(newstry[i]) == 0 and int(k) == 0:
-                pos += 1
-            elif (int(newstry[i]) == 0 and (int(k) == 1 or (int(k) == 2 and int(stry[i + 2]) < 5))):
-                return (pos+1)
-            else:
-                return(pos)
-
-print(postrunc(0.00127))
-def truncate(y,n):
-    digitsy = list()
-    for i in str(y):
-        if i.isnumeric():
-            digitsy.append(int(i))
-        else:
-            digitsy.append(i)
-    digitsy.reverse()
-    digitsy.append(0)
-    digitsy.reverse()
-    if digitsy[n+1].isnumeric() == False:
-        if digitsy[n+2] >= 5 and digitsy[n] < 9:
-            digitsy[n] += 1
-        elif digitsy[n+2] >= 5 and digitsy[n] == 9:
-            digitsy[n-1] += 1
-            digitsy[n] = 0
-        else:
-            digitsy[n] += 0
-    elif digitsy[n-1].isnumeric() == False:
-        if digitsy[n+1] >= 5 and digitsy[n] < 9:
-            digitsy[n] += 1
-        elif digitsy[n+1] >= 5 and digitsy[n] == 9:
-            digitsy[n-2] += 1
-            digitsy[n] = 0
-        else:
-            digitsy[n] += 0
+def equals(a,b):
+    if a == b:
+        return True
     else:
-        if digitsy[n+1] >= 5 and digitsy[n] < 9:
-            digitsy[n] += 1
-        elif digitsy[n+1] >= 5 and digitsy[n] == 9:
-            digitsy[n-1] += 1
-            digitsy[n] = 0
+        return False
+
+def dig(n):
+    dig = list()
+    for i in str(n):
+        if i.isnumeric() == False:
+            continue
         else:
-            digitsy[n] += 0
+            dig.append(int(i))
+    return dig
+def exception(x):
+    a = dig(x)
+    b = a[:]
+    a.pop(-1)
+    tail = b[-1]
+    return all(list(map(lambda x: equals(x,0), a))) and (equals(tail,1) or equals(tail,2))
+def postrunc(y):
+    if exception(y) == 1:
+        return len(str(abs(y)))-1
+    else:
+        stry = str(abs(y))
+        digitsy = list()
+        for i, k in enumerate(stry):
+            digitsy.append(k)
+        digitsy.reverse()
+        digitsy.append('0')
+        digitsy.reverse()
+        digitsy.append('0')
+        newstry = ''.join(digitsy)
+        pos = 0
+        for i, k in enumerate(stry):
+            if k.isnumeric() == False:
+                pos += 1
+            elif k.isnumeric() and newstry[i].isnumeric() == False:
+                if int(newstry[i - 1]) == 0 and int(k) == 0:
+                    pos += 1
+                elif (int(newstry[i - 1]) == 0 and (int(k) == 1 or (int(k) == 2 and int(stry[i + 1]) < 5))):
+                    return (pos + 1)
+                else:
+                    return (pos)
+            elif k.isnumeric() and newstry[i + 2].isnumeric() == False:
+                if int(newstry[i]) == 0 and int(k) == 0:
+                    pos += 1
+                elif (int(newstry[i]) == 0 and (int(k) == 1 or (int(k) == 2 and int(stry[i + 1]) < 5))):
+                    return (pos + 2)
+                else:
+                    return (pos)
+            else:
+                if int(newstry[i]) == 0 and int(k) == 0:
+                    pos += 1
+                elif (int(newstry[i]) == 0 and (int(k) == 1 or (int(k) == 2 and int(stry[i + 1]) < 5))):
+                    return (pos + 1)
+                else:
+                    return (pos)
+
+def truncate(y,n):
+    if exception(y) == 1:
+        return str(y)
+    else:
+        sgn = int(y / abs(y))
+        digitsy = list()
+        for i in str(abs(y)):
+            if i.isnumeric():
+                digitsy.append(int(i))
+            else:
+                digitsy.append(i)
+        digitsy.reverse()
+        digitsy.append(0)
+        digitsy.reverse()
+        digitsy.append(0)
+        digitsy.append(0)
+        digitsy.append(0)
+        if str(digitsy[n + 2]).isnumeric() == False:
+            if digitsy[n + 3] >= 5 and digitsy[n + 1] < 9:
+                digitsy[n + 1] += 1
+            elif digitsy[n + 3] >= 5 and digitsy[n + 1] == 9:
+                digitsy[n] += 1
+                digitsy[n + 1] = 0
+            else:
+                digitsy[n + 1] += 0
+        elif str(digitsy[n]).isnumeric() == False:
+            if digitsy[n + 2] >= 5 and digitsy[n + 1] < 9:
+                digitsy[n + 1] += 1
+            elif digitsy[n + 2] >= 5 and digitsy[n + 1] == 9:
+                digitsy[n - 1] += 1
+                digitsy[n + 1] = 0
+            else:
+                digitsy[n + 1] += 0
+        else:
+            if digitsy[n + 2] >= 5 and digitsy[n + 1] < 9:
+                digitsy[n + 1] += 1
+            elif digitsy[n + 2] >= 5 and digitsy[n + 1] == 9:
+                digitsy[n] += 1
+                digitsy[n + 1] = 0
+            else:
+                digitsy[n + 1] += 0
+        posnonnum = 0
+        for i in str(abs(y)):
+            if i.isnumeric():
+                posnonnum += 1
+            else:
+                break
+        if n < posnonnum:
+            for i in list(range(n + 2, posnonnum + 1)):
+                digitsy[i] = 0
+            newdigitsy = list()
+            for i in range(1, posnonnum + 1):
+                newdigitsy.append(digitsy[i])
+        else:
+            newdigitsy = list()
+            for i in range(1, n + 2):
+                newdigitsy.append(digitsy[i])
+        newdigitsy[0] *= sgn
+        return ''.join(list(map(str, newdigitsy)))
 
 def print_error(x,y):
-    return f'{x} \u00B1 {y}'
-
+    posnonnum = 0
+    for i in str(abs(y)):
+        if i.isnumeric():
+            posnonnum += 1
+        else:
+            break
+    posnonnum2 = 0
+    for i in str(abs(x)):
+        if i.isnumeric():
+            posnonnum2 += 1
+        else:
+            break
+    if (postrunc(y) - posnonnum) + posnonnum2 < 0:
+        return f'{0} \u00B1 {truncate(y, postrunc(y))}'
+    else:
+        return f'{truncate(x, posnonnum2 + (postrunc(y) - posnonnum))} \u00B1 {truncate(y, postrunc(y))}'
 A = {}
 A["s"] = list()
 A["spri"] = list()
 A["beta"] = list()
 for _ in range(0,4):
-    A["s"] += list(map(lambda x: print_error(preim_gauss(x,fpri)[0],preim_gauss(x,fpri)[1]),spriset))
-    A["spri"] += spriset
-    A["beta"] += betas
-A["hprisndelxpris"] = hpriset1 + hpriset2 + hpriset3 + hpriset4
+    A["s"] += list(map(lambda x: print_error(preim_gauss(x,fpri)[0],preim_gauss(x,fpri)[1]), spriset))
+    A["spri"] += list(map(lambda x: print_error(x,0.1), spriset))
+    A["beta"] += list(map(lambda x: print_error(preim_gauss(x,fpri)[2],preim_gauss(x,fpri)[3]), spriset))
+A["hprisndelxpris"] = list(map(lambda x: print_error(x,0.005), hpriset1 + hpriset2 + hpriset3 + hpriset4))
 A["hsndelx"] = list()
 A["asnDs"] = list()
 for i in range(0,4):

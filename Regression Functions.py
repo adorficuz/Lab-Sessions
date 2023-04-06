@@ -61,91 +61,146 @@ def plot(xs,str): #It tells apart between single tables of data and several of t
         plt.show()
         dicto = {"Coeffs": reg[0], "Errs": [(reg[1])[0, 0], (reg[1])[1, 1]], "Rsq": R_sq}
     return dicto
-def print_error(x,y):
-    return f'{x} \u00B1 {y}'
 
-def postrunc(y):
-    stry = str(y)
-    digitsy = list()
-    for i,k in enumerate(stry):
-        digitsy.append(k)
-    digitsy.reverse()
-    digitsy.append('0')
-    digitsy.reverse()
-    newstry = ''.join(digitsy)
-    pos = 0
-    for i, k in enumerate(stry):
-        if k.isnumeric() == False:
-            pos += 1
-        elif k.isnumeric() and newstry[i].isnumeric() == False:
-            if int(newstry[i - 1]) == 0 and int(k) == 0:
-                pos += 1
-            elif (int(newstry[i - 1]) == 0 and (int(k) == 1 or (int(k) == 2 and int(stry[i - 1 + 1]) < 5))):
-                return (pos+1)
-            else:
-                return (pos)
-        elif k.isnumeric() and newstry[i + 2].isnumeric() == False:
-            if int(newstry[i]) == 0 and int(k) == 0:
-                pos += 1
-            elif (int(newstry[i]) == 0 and (int(k) == 1 or (int(k) == 2 and int(stry[i + 2]) < 5))):
-                return (pos+2)
-            else:
-                return(pos)
+def equals(a,b):
+    if a == b:
+        return True
+    else:
+        return False
+
+def dig(n):
+    dig = list()
+    for i in str(n):
+        if i.isnumeric() == False:
+            continue
         else:
-            if int(newstry[i]) == 0 and int(k) == 0:
+            dig.append(int(i))
+    return dig
+def exception(x):
+    a = dig(x)
+    b = a[:]
+    a.pop(-1)
+    tail = b[-1]
+    return all(list(map(lambda x: equals(x,0), a))) and (equals(tail,1) or equals(tail,2))
+def postrunc(y):
+    if exception(y) == 1:
+        return len(str(abs(y)))-1
+    else:
+        stry = str(abs(y))
+        digitsy = list()
+        for i, k in enumerate(stry):
+            digitsy.append(k)
+        digitsy.reverse()
+        digitsy.append('0')
+        digitsy.reverse()
+        digitsy.append('0')
+        newstry = ''.join(digitsy)
+        pos = 0
+        for i, k in enumerate(stry):
+            if k.isnumeric() == False:
                 pos += 1
-            elif (int(newstry[i]) == 0 and (int(k) == 1 or (int(k) == 2 and int(stry[i + 2]) < 5))):
-                return (pos+1)
+            elif k.isnumeric() and newstry[i].isnumeric() == False:
+                if int(newstry[i - 1]) == 0 and int(k) == 0:
+                    pos += 1
+                elif (int(newstry[i - 1]) == 0 and (int(k) == 1 or (int(k) == 2 and int(stry[i + 1]) < 5))):
+                    return (pos + 1)
+                else:
+                    return (pos)
+            elif k.isnumeric() and newstry[i + 2].isnumeric() == False:
+                if int(newstry[i]) == 0 and int(k) == 0:
+                    pos += 1
+                elif (int(newstry[i]) == 0 and (int(k) == 1 or (int(k) == 2 and int(stry[i + 1]) < 5))):
+                    return (pos + 2)
+                else:
+                    return (pos)
             else:
-                return(pos)
-
-print(postrunc(1215670.0427))
+                if int(newstry[i]) == 0 and int(k) == 0:
+                    pos += 1
+                elif (int(newstry[i]) == 0 and (int(k) == 1 or (int(k) == 2 and int(stry[i + 1]) < 5))):
+                    return (pos + 1)
+                else:
+                    return (pos)
 
 def truncate(y,n):
-    digitsy = list()
-    for i in str(y):
-        if i.isnumeric():
-            digitsy.append(int(i))
-        else:
-            digitsy.append(i)
-    digitsy.reverse()
-    digitsy.append(0)
-    digitsy.reverse()
-    if str(digitsy[n+2]).isnumeric() == False:
-        if digitsy[n+3] >= 5 and digitsy[n+1] < 9:
-            digitsy[n+1] += 1
-            return ''.join(list(map(str, digitsy)))
-        elif digitsy[n+3] >= 5 and digitsy[n+1] == 9:
-            digitsy[n] += 1
-            digitsy[n+1] = 0
-            return ''.join(list(map(str, digitsy)))
-        else:
-            digitsy[n+1] += 0
-            return ''.join(list(map(str, digitsy)))
-    elif str(digitsy[n]).isnumeric() == False:
-        if digitsy[n+2] >= 5 and digitsy[n+1] < 9:
-            digitsy[n+1] += 1
-            return ''.join(list(map(str, digitsy)))
-        elif digitsy[n+2] >= 5 and digitsy[n+1] == 9:
-            digitsy[n-1] += 1
-            digitsy[n+1] = 0
-            return ''.join(list(map(str, digitsy)))
-        else:
-            digitsy[n+1] += 0
-            return ''.join(list(map(str, digitsy)))
+    if exception(y) == 1:
+        return str(y)
     else:
-        if digitsy[n+2] >= 5 and digitsy[n+1] < 9:
-            digitsy[n+1] += 1
-            return ''.join(list(map(str, digitsy)))
-        elif digitsy[n+2] >= 5 and digitsy[n+1] == 9:
-            digitsy[n] += 1
-            digitsy[n+1] = 0
-            return ''.join(list(map(str, digitsy)))
+        sgn = int(y / abs(y))
+        digitsy = list()
+        for i in str(abs(y)):
+            if i.isnumeric():
+                digitsy.append(int(i))
+            else:
+                digitsy.append(i)
+        digitsy.reverse()
+        digitsy.append(0)
+        digitsy.reverse()
+        digitsy.append(0)
+        digitsy.append(0)
+        digitsy.append(0)
+        if str(digitsy[n + 2]).isnumeric() == False:
+            if digitsy[n + 3] >= 5 and digitsy[n + 1] < 9:
+                digitsy[n + 1] += 1
+            elif digitsy[n + 3] >= 5 and digitsy[n + 1] == 9:
+                digitsy[n] += 1
+                digitsy[n + 1] = 0
+            else:
+                digitsy[n + 1] += 0
+        elif str(digitsy[n]).isnumeric() == False:
+            if digitsy[n + 2] >= 5 and digitsy[n + 1] < 9:
+                digitsy[n + 1] += 1
+            elif digitsy[n + 2] >= 5 and digitsy[n + 1] == 9:
+                digitsy[n - 1] += 1
+                digitsy[n + 1] = 0
+            else:
+                digitsy[n + 1] += 0
         else:
-            digitsy[n+1] += 0
-            return ''.join(list(map(str, digitsy)))
+            if digitsy[n + 2] >= 5 and digitsy[n + 1] < 9:
+                digitsy[n + 1] += 1
+            elif digitsy[n + 2] >= 5 and digitsy[n + 1] == 9:
+                digitsy[n] += 1
+                digitsy[n + 1] = 0
+            else:
+                digitsy[n + 1] += 0
+        posnonnum = 0
+        for i in str(abs(y)):
+            if i.isnumeric():
+                posnonnum += 1
+            else:
+                break
+        if n < posnonnum:
+            for i in list(range(n + 2, posnonnum + 1)):
+                digitsy[i] = 0
+            newdigitsy = list()
+            for i in range(1, posnonnum + 1):
+                newdigitsy.append(digitsy[i])
+        else:
+            newdigitsy = list()
+            for i in range(1, n + 2):
+                newdigitsy.append(digitsy[i])
+        newdigitsy[0] *= sgn
+        return ''.join(list(map(str, newdigitsy)))
 
-print(truncate(1215670.0427,postrunc(1215670.0427)))
+def print_error(x,y):
+    posnonnum = 0
+    for i in str(abs(y)):
+        if i.isnumeric():
+            posnonnum += 1
+        else:
+            break
+    posnonnum2 = 0
+    for i in str(abs(x)):
+        if i.isnumeric():
+            posnonnum2 += 1
+        else:
+            break
+    if (postrunc(y) - posnonnum) + posnonnum2 < 0:
+        return f'{0} \u00B1 {truncate(y, postrunc(y))}'
+    else:
+        return f'{truncate(x, posnonnum2 + (postrunc(y) - posnonnum))} \u00B1 {truncate(y, postrunc(y))}'
+
+print(exception(0.1))
+print(print_error(239.9,0.1))
 def csvfile(n):
     with open(f'table {n}.csv', 'w+', newline='') as f:  # You will need 'wb' mode in Python 2.x
         w = csv.DictWriter(f, Results.keys())
