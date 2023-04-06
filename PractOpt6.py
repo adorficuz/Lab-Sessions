@@ -79,8 +79,8 @@ def delxnD(xs,n):
         delx.append(i[4])
         D.append(i[6])
     return {"$\Delta x$":delx,"D":D}
-dom1 = delxnD(data1,1)
-dom2 = delxnD(data2,1)
+dom1 = delxnD(data1,0)
+dom2 = delxnD(data2,0)
 dom3 = delxnD(data3,0)
 dom4 = delxnD(data4,0)
 doms = [dom1,dom2,dom3,dom4]
@@ -117,7 +117,7 @@ def plot(xs,str):
         ax.legend(loc='best')
         fig.savefig(f'{str}.pdf')
         plt.show()
-        dicto = {"Coeffs": reg[0], "Errs": [(reg[1])[0, 0], (reg[1])[1, 1]], "Rsq": R_sq}
+        dicto = {"Coeffs": reg[0], "Errs": [np.sqrt((reg[1])[0, 0]), np.sqrt((reg[1])[1, 1])], "Rsq": R_sq}
     else:
         n = int(str[-1])
         reg = np.polyfit((xs[n])[vars[1]], (xs[n])[vars[0]], deg=1, full=False, cov=True)
@@ -136,7 +136,7 @@ def plot(xs,str):
         ax.legend(loc='best')
         fig.savefig(f'Figura{n}.pdf')
         plt.show()
-        dicto = {"Coeffs": reg[0], "Errs": [(reg[1])[0, 0], (reg[1])[1, 1]], "Rsq": R_sq}
+        dicto = {"Coeffs": reg[0], "Errs": [np.sqrt((reg[1])[0, 0]), np.sqrt((reg[1])[1, 1])], "Rsq": R_sq}
     return dicto
 
 #6.- Find Lambda
@@ -145,9 +145,17 @@ def lamda(n):
     lamda = slope*(((datas[n])[0])[4])
     return lamda
 
+def lamdaerr(n):
+    slope = (plot(doms, f'Figura {n}')['Coeffs'])[0]
+    errslope = (plot(doms, f'Figura {n}')['Errs'])[0]
+    lamdaerr = errslope*(((datas[n])[0])[4]) + slope*(((datas[n])[0])[5])
+    return lamdaerr
 res = list(map( lambda x: plot(doms,'Figura %i'%(x)),[0,1,2,3]))
 reslamda = list(map(lamda,[0,1,2,3]))
+reslamdaerr = list(map(lamdaerr,[0,1,2,3]))
 avglamda = sum(reslamda)/(len(reslamda))
+avglamdaerr = sum(reslamdaerr)/(len(reslamda))
+
 
 #7.- Final regression
 l = list()
@@ -164,7 +172,7 @@ dom = {"h":hs,"a":a}
 resfin = plot(dom,"Dependencia Lineal (a,h)")
 eta = 1.5
 alpha = 0.5*(resfin['Coeffs'][0])*(1/(eta-1))
-
+alpha_err = 0.5*(resfin['Errs'][0])*(1/(eta-1))
 def equals(a,b):
     if a == b:
         return True
@@ -307,7 +315,7 @@ A["spri"] = list()
 A["beta"] = list()
 for _ in range(0,4):
     A["s"] += list(map(lambda x: print_error(preim_gauss(x,fpri)[0],preim_gauss(x,fpri)[1]), spriset))
-    A["spri"] += list(map(lambda x: print_error(x,0.1), spriset))
+    A["spri"] += list(map(lambda x: print_error(x,0.6), spriset))
     A["beta"] += list(map(lambda x: print_error(preim_gauss(x,fpri)[2],preim_gauss(x,fpri)[3]), spriset))
 A["hprisndelxpris"] = list(map(lambda x: print_error(x,0.005), hpriset1 + hpriset2 + hpriset3 + hpriset4))
 A["hsndelx"] = list()
