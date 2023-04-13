@@ -1,4 +1,5 @@
 import pandas as pd
+from sympy import *
 import matplotlib.pyplot as plt
 import numpy as np
 import csv
@@ -180,6 +181,31 @@ def truncate(y,n):
                 newdigitsy.append(digitsy[i])
         newdigitsy[0] *= sgn
         return ''.join(list(map(str, newdigitsy)))
+
+def compute_errors(expr,dict):
+    listsymbs = ''
+    for i in dict.keys():
+        listsymbs += f'{i} '
+    errors = list()
+    simbolos = symbols(listsymbs)[:]
+    vartuple = (symbols(listsymbs)[0],)
+    symbols(listsymbs).pop(0)
+    for j in symbols(listsymbs):
+        vartuple += (j,)
+    valtuple = list()
+    firstname = list(dict.keys())[0]
+    names = list(dict.keys())
+    names.pop(0)
+    for j in range(0, len((dict[firstname])[0])):
+        valtuple.append(((dict[firstname])[j],))
+        for l in names:
+            valtuple[j] += ((dict[l])[j],)
+    for i, k in enumerate(list(dict.keys())):
+        errors.append(0)
+        f = lambdify([vartuple], Derivative(expr, symbols(listsymbs)[i]))
+        errors[i] += abs(f(valtuple)) * (dict[k])[2]
+    return errors
+
 
 def print_error(x,y):
     posnonnum = 0
