@@ -225,12 +225,26 @@ def print_error(x,y):
     else:
         return f'{truncate(x, posnonnum2 + (postrunc(y) - posnonnum))} \u00B1 {truncate(y, postrunc(y))}'
 #prints the error of x +- y already truncated according to y
-def csvfile(n):
-    with open(f'table {n}.csv', 'w+', newline='') as f:  # You will need 'wb' mode in Python 2.x
-        w = csv.DictWriter(f, Results.keys())
 
-        for i in range(10*n, 10*(n+1)):
-            line = {}
-            for j in list(Results.keys()):
-                line[j] = (Results[j])[i]
-            w.writerow(line)
+##Ley de Malus
+theta = symbols('theta')
+angles = {'theta':[list(range(pi/2,0,-pi/18)),1], 'V':[[0.5,1.6,4.6,9.4,14.8,20.3,25.9,30.8,33.1,34.2],0.1]}
+errscos = compute_errors((cos(theta))**2,angles)
+costheta = list()
+for i in angles[theta][0]:
+    costheta.append(cos(i))
+dom = {'costheta':costheta, 'V':[[0.5,1.6,4.6,9.4,14.8,20.3,25.9,30.8,33.1,34.2],0.1]}
+
+plot(dom,'Dep Lin')
+
+##Sacarimetría
+vols = list()
+vols.append(90)
+for i in range(0,7):
+    vols.append(vols[i] + 30)
+gssugar = 0.3*90
+concs = list()
+for i in vols:
+    concs.append(gssugar/i)
+
+varangles = {'c':[concs,0.08], 'delTheta':[[218-253,223-253,227-253,231-253,236-253,238-253,240-253,241-253],1]}
