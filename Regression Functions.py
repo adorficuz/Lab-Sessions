@@ -36,7 +36,7 @@ def plot(xs,str): #It tells apart between single tables of data and several of t
         ax.plot(xs[vars[0]], trend, 'r',
                 label=f'{vars[1]}= %.5f $\cdot$ {vars[0]} + (%.3f); $R^2$ = %.3f' % ((reg[0])[0], (reg[0])[1], R_sq))
         ax.scatter(xs[vars[0]], xs[vars[1]], label='Puntos Experimentales')
-        ax.set(xlabel=f'{vars[1]} (cm)', ylabel=f'{vars[1]} (cm)',
+        ax.set(xlabel=f'{vars[0]} (cm)', ylabel=f'{vars[1]} (cm)',
                title=f'Dependencia Lineal ({vars[0]}, {vars[1]}).')
         ax.legend(loc='best')
         fig.savefig(f'{str}.pdf')
@@ -225,8 +225,6 @@ def print_error(x,y):
     else:
         return f'{truncate(x, posnonnum2 + (postrunc(y) - posnonnum))} \u00B1 {truncate(y, postrunc(y))}'
 
-print(exception(0.1))
-print(print_error(239.9,0.1))
 def csvfile(n):
     with open(f'table {n}.csv', 'w+', newline='') as f:  # You will need 'wb' mode in Python 2.x
         w = csv.DictWriter(f, Results.keys())
