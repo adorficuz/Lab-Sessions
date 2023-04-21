@@ -19,48 +19,55 @@ def isnan(str): #Auxiliar for plot
         return True
     else:
         return False
-def plot(xs,str): #It tells apart between single tables of data and several of them
+def plot(xs,str,g): #It tells apart between single tables of data and several of them
+    tipos_curva = ['Lineal','Cuadrática','Cúbica']
     if type(xs) is dict:
         vars = list(xs.keys())
     else:
         vars = list(xs[0].keys())
     if isnan(str):
-        reg = np.polyfit(xs[vars[0]], xs[vars[1]], deg=1, full=False, cov=True)
-        corr_matrix = np.corrcoef(xs[vars[0]], xs[vars[1]])
+        reg = np.polyfit(xs[vars[0]][0], xs[vars[1]][0], deg=g, full=False, cov=True)
+        corr_matrix = np.corrcoef(xs[vars[0]][0], xs[vars[1]][0])
         corr = corr_matrix[0, 1]
         R_sq = corr ** 2
-        trend = np.polyval(reg[0], xs[vars[0]])
+        trend = np.polyval(reg[0], xs[vars[0]][0])
         fig, ax = plt.subplots()
         ax.set_axisbelow(True)
         ax.grid(color='gray', linestyle='-.', linewidth=0.5)
-        ax.plot(xs[vars[0]], trend, 'r',
+        ax.plot(xs[vars[0]][0], trend, 'r',
                 label=f'{vars[1]}= %.5f $\cdot$ {vars[0]} + (%.3f); $R^2$ = %.3f' % ((reg[0])[0], (reg[0])[1], R_sq))
-        ax.scatter(xs[vars[0]], xs[vars[1]], label='Puntos Experimentales')
-        ax.set(xlabel=f'{vars[1]} (cm)', ylabel=f'{vars[1]} (cm)',
-               title=f'Dependencia Lineal ({vars[0]}, {vars[1]}).')
+        ax.scatter(xs[vars[0]][0], xs[vars[1]][0], label='Puntos Experimentales')
+        ax.set(xlabel=f'{vars[0]} {xs[vars[0]][2][0]}', ylabel=f'{vars[1]} {xs[vars[1]][2][0]}',
+               title=f'Dependencia {tipos_curva[g-1]} ({vars[0]}, {vars[1]}).')
         ax.legend(loc='best')
         fig.savefig(f'{str}.pdf')
         plt.show()
-        dicto = {"Coeffs": reg[0], "Errs": [(reg[1])[0, 0], (reg[1])[1, 1]], "Rsq": R_sq}
+        errs_coefs = list()
+        for i in range(0,g+1):
+            errs_coefs.append((reg[1])[i,i])
+        dicto = {"Coeffs": reg[0], "Errs":errs_coefs, "Rsq": R_sq}
     else:
         n = int(str[-1])
-        reg = np.polyfit((xs[n])[vars[0]], (xs[n])[vars[1]], deg=1, full=False, cov=True)
-        corr_matrix = np.corrcoef((xs[n])[vars[0]], (xs[n])[vars[1]])
+        reg = np.polyfit((xs[n])[vars[0]][0], (xs[n])[vars[1]][0], deg=g, full=False, cov=True)
+        corr_matrix = np.corrcoef((xs[n])[vars[0]][0], (xs[n])[vars[1]][0])
         corr = corr_matrix[0, 1]
         R_sq = corr ** 2
-        trend = np.polyval(reg[0], (xs[n])[vars[0]])
+        trend = np.polyval(reg[0], (xs[n])[vars[0]][0])
         fig, ax = plt.subplots()
         ax.set_axisbelow(True)
         ax.grid(color='gray', linestyle='-.', linewidth=0.5)
-        ax.plot((xs[n])[vars[0]], trend, 'r',
+        ax.plot((xs[n])[vars[0]][0], trend, 'r',
                 label=f'{vars[1]}= %.5f $\cdot$ {vars[0]} + (%.3f); $R^2$ = %.3f' % ((reg[0])[0], (reg[0])[1], R_sq))
-        ax.scatter((xs[n])[vars[0]], (xs[n])[vars[1]], label='Puntos Experimentales')
-        ax.set(xlabel=f'{vars[0]} (cm)', ylabel=f'{vars[1]} (cm)',
-               title=f'Dependencia Lineal ({vars[0]}, {vars[1]}). Paquete de medidas {n + 1}')
+        ax.scatter((xs[n])[vars[0]][0], (xs[n])[vars[1]][0], label='Puntos Experimentales')
+        ax.set(xlabel=f'{vars[0]} {xs[vars[0]][2][0]}', ylabel=f'{vars[1]} {xs[vars[1]][2][0]}',
+               title=f'Dependencia {tipos_curva[g-1]} ({vars[0]}, {vars[1]}). Paquete de medidas {n + 1}')
         ax.legend(loc='best')
         fig.savefig(f'Figura{n}.pdf')
         plt.show()
-        dicto = {"Coeffs": reg[0], "Errs": [(reg[1])[0, 0], (reg[1])[1, 1]], "Rsq": R_sq}
+        errs_coefs = list()
+        for i in range(0, g + 1):
+            errs_coefs.append((reg[1])[i, i])
+        dicto = {"Coeffs": reg[0], "Errs": errs_coefs, "Rsq": R_sq}
     return dicto
 
 def equals(a,b):
@@ -209,29 +216,52 @@ def compute_errors(expr,dict):
 theta, phi = symbols('theta phi')
 print(compute_errors(cos(theta) + sin(phi), {'theta':[[1,2,3],[0.1]], 'phi':[[4,5,6],[0.5]]}))
 def print_error(x,y):
-    posnonnum = 0
-    for i in str(abs(y)):
-        if i.isnumeric():
-            posnonnum += 1
-        else:
-            break
-    posnonnum2 = 0
-    for i in str(abs(x)):
-        if i.isnumeric():
-            posnonnum2 += 1
-        else:
-            break
-    if (postrunc(y) - posnonnum) + posnonnum2 < 0:
-        return f'{0} \u00B1 {truncate(y, postrunc(y))}'
+    if x == 0 and y == 0:
+        return f'0 \u00B1 0'
+    elif x != 0 and y == 0:
+        return f'{x} \u00B1 0'
+    elif x == 0 and y != 0:
+        return f'0 \u00B1 {y}'
     else:
-        return f'{truncate(x, posnonnum2 + (postrunc(y) - posnonnum))} \u00B1 {truncate(y, postrunc(y))}'
+        posnonnum = 0
+        for i in str(abs(y)):
+            if i.isnumeric():
+                posnonnum += 1
+            else:
+                break
+        posnonnum2 = 0
+        for i in str(abs(x)):
+            if i.isnumeric():
+                posnonnum2 += 1
+            else:
+                break
+        if (postrunc(y) - posnonnum) + posnonnum2 < 0:
+            return f'{0} \u00B1 {truncate(y, postrunc(y))}'
+        else:
+            return f'{truncate(x, posnonnum2 + (postrunc(y) - posnonnum))} \u00B1 {truncate(y, postrunc(y))}'
 
-def csvfile(n):
-    with open(f'table {n}.csv', 'w+', newline='') as f:  # You will need 'wb' mode in Python 2.x
-        w = csv.DictWriter(f, Results.keys())
+def csvfile(dict,str):
+    vars = list(dict.keys())
+    vartuple = (vars[0],)
+    vars.pop(0)
+    for i in vars:
+        vartuple += (i,)
+    if isnan(str):
+        with open(f'table {vartuple}.csv', 'w+', newline='') as f:  # You will need 'wb' mode in Python 2.x
+            w = csv.DictWriter(f, dict.keys())
 
-        for i in range(10*n, 10*(n+1)):
-            line = {}
-            for j in list(Results.keys()):
-                line[j] = (Results[j])[i]
-            w.writerow(line)
+            for i in range(0, len(dict[list(dict.keys())[0]][0])):
+                line = {}
+                for j in list(dict.keys()):
+                    line[j] = print_error((dict[j])[0][i],(dict[j])[1][i])
+                w.writerow(line)
+    else:
+        n = int(str[-1])
+        with open(f'table {vartuple} {n}.csv', 'w+', newline='') as f:  # You will need 'wb' mode in Python 2.x
+            w = csv.DictWriter(f, dict.keys())
+
+            for i in range(0, len(dict[list(dict.keys())[0]][0])):
+                line = {}
+                for j in list(dict.keys()):
+                    line[j] = print_error((dict[j])[0][i],(dict[j])[1][i])
+                w.writerow(line)
