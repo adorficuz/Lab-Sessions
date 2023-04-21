@@ -188,25 +188,26 @@ def compute_errors(expr,dict):
         listsymbs += f'{i} '
     errors = list()
     simbolos = symbols(listsymbs)[:]
-    vartuple = (symbols(listsymbs)[0],)
-    symbols(listsymbs).pop(0)
-    for j in symbols(listsymbs):
-        vartuple += (j,)
+    vartuple = (simbolos[0],)
+    for j in range(1,len(simbolos)):
+        vartuple += (simbolos[j],)
     valtuple = list()
     firstname = list(dict.keys())[0]
     names = list(dict.keys())
     names.pop(0)
     for j in range(0, len((dict[firstname])[0])):
-        valtuple.append(((dict[firstname])[j],))
+        valtuple.append((((dict[firstname])[0])[j],))
         for l in names:
-            valtuple[j] += ((dict[l])[j],)
-    for i, k in enumerate(list(dict.keys())):
+            valtuple[j] += (((dict[l])[0])[j],)
+    for j in range(0,len((dict[firstname])[0])):
         errors.append(0)
-        f = lambdify([vartuple], Derivative(expr, symbols(listsymbs)[i]))
-        errors[i] += abs(f(valtuple)) * (dict[k])[2]
+        for i, k in enumerate(list(dict.keys())):
+            f = lambdify([vartuple], Derivative(expr, simbolos[i]).doit())
+            errors[j] += float(abs(f(valtuple[j]))) * ((dict[k])[1])[0]
     return errors
 
-
+theta, phi = symbols('theta phi')
+print(compute_errors(cos(theta) + sin(phi), {'theta':[[1,2,3],[0.1]], 'phi':[[4,5,6],[0.5]]}))
 def print_error(x,y):
     posnonnum = 0
     for i in str(abs(y)):
@@ -225,8 +226,6 @@ def print_error(x,y):
     else:
         return f'{truncate(x, posnonnum2 + (postrunc(y) - posnonnum))} \u00B1 {truncate(y, postrunc(y))}'
 
-print(exception(0.1))
-print(print_error(239.9,0.1))
 def csvfile(n):
     with open(f'table {n}.csv', 'w+', newline='') as f:  # You will need 'wb' mode in Python 2.x
         w = csv.DictWriter(f, Results.keys())
