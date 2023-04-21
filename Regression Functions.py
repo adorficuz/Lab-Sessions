@@ -3,12 +3,9 @@ from sympy import *
 import matplotlib.pyplot as plt
 import numpy as np
 import csv
-def array_to_dict(xs,ys): #This function enables us to import data to a dict
-    dict = {}
-    for i,k in enumerate(ys):
-        dict[i] = xs[k]
-    return dict
-def isnan(str): #Auxiliar for plot
+
+#Auxiliar Functions
+def isnan(str):
     boollist = list()
     for i in str:
         if i.isnumeric():
@@ -19,63 +16,13 @@ def isnan(str): #Auxiliar for plot
         return True
     else:
         return False
-def plot(xs,str,g): #It tells apart between single tables of data and several of them
-    tipos_curva = ['Lineal','Cuadrática','Cúbica']
-    if type(xs) is dict:
-        vars = list(xs.keys())
-    else:
-        vars = list(xs[0].keys())
-    if isnan(str):
-        reg = np.polyfit(xs[vars[0]][0], xs[vars[1]][0], deg=g, full=False, cov=True)
-        corr_matrix = np.corrcoef(xs[vars[0]][0], xs[vars[1]][0])
-        corr = corr_matrix[0, 1]
-        R_sq = corr ** 2
-        trend = np.polyval(reg[0], xs[vars[0]][0])
-        fig, ax = plt.subplots()
-        ax.set_axisbelow(True)
-        ax.grid(color='gray', linestyle='-.', linewidth=0.5)
-        ax.plot(xs[vars[0]][0], trend, 'r',
-                label=f'{vars[1]}= %.5f $\cdot$ {vars[0]} + (%.3f); $R^2$ = %.3f' % ((reg[0])[0], (reg[0])[1], R_sq))
-        ax.scatter(xs[vars[0]][0], xs[vars[1]][0], label='Puntos Experimentales')
-        ax.set(xlabel=f'{vars[0]} {xs[vars[0]][2][0]}', ylabel=f'{vars[1]} {xs[vars[1]][2][0]}',
-               title=f'Dependencia {tipos_curva[g-1]} ({vars[0]}, {vars[1]}).')
-        ax.legend(loc='best')
-        fig.savefig(f'{str}.pdf')
-        plt.show()
-        errs_coefs = list()
-        for i in range(0,g+1):
-            errs_coefs.append((reg[1])[i,i])
-        dicto = {"Coeffs": reg[0], "Errs":errs_coefs, "Rsq": R_sq}
-    else:
-        n = int(str[-1])
-        reg = np.polyfit((xs[n])[vars[0]][0], (xs[n])[vars[1]][0], deg=g, full=False, cov=True)
-        corr_matrix = np.corrcoef((xs[n])[vars[0]][0], (xs[n])[vars[1]][0])
-        corr = corr_matrix[0, 1]
-        R_sq = corr ** 2
-        trend = np.polyval(reg[0], (xs[n])[vars[0]][0])
-        fig, ax = plt.subplots()
-        ax.set_axisbelow(True)
-        ax.grid(color='gray', linestyle='-.', linewidth=0.5)
-        ax.plot((xs[n])[vars[0]][0], trend, 'r',
-                label=f'{vars[1]}= %.5f $\cdot$ {vars[0]} + (%.3f); $R^2$ = %.3f' % ((reg[0])[0], (reg[0])[1], R_sq))
-        ax.scatter((xs[n])[vars[0]][0], (xs[n])[vars[1]][0], label='Puntos Experimentales')
-        ax.set(xlabel=f'{vars[0]} {xs[vars[0]][2][0]}', ylabel=f'{vars[1]} {xs[vars[1]][2][0]}',
-               title=f'Dependencia {tipos_curva[g-1]} ({vars[0]}, {vars[1]}). Paquete de medidas {n + 1}')
-        ax.legend(loc='best')
-        fig.savefig(f'Figura{n}.pdf')
-        plt.show()
-        errs_coefs = list()
-        for i in range(0, g + 1):
-            errs_coefs.append((reg[1])[i, i])
-        dicto = {"Coeffs": reg[0], "Errs": errs_coefs, "Rsq": R_sq}
-    return dicto
-
+#Detects if a string includes a number
 def equals(a,b):
     if a == b:
         return True
     else:
         return False
-
+#Detects if two inputs are equal (any type)
 def dig(n):
     dig = list()
     for i in str(n):
@@ -84,12 +31,14 @@ def dig(n):
         else:
             dig.append(int(i))
     return dig
+#Number of digits of a numerical string
 def exception(x):
     a = dig(x)
     b = a[:]
     a.pop(-1)
     tail = b[-1]
     return all(list(map(lambda x: equals(x,0), a))) and (equals(tail,1) or equals(tail,2))
+#Detects exception for code print_error mapping is based on
 def postrunc(y):
     if exception(y) == 1:
         return len(str(abs(y)))-1
@@ -128,7 +77,7 @@ def postrunc(y):
                     return (pos + 1)
                 else:
                     return (pos)
-
+#Detects the position among the digits of the numerical string in which truncation begins
 def truncate(y,n):
     if exception(y) == 1:
         return str(y)
@@ -188,7 +137,65 @@ def truncate(y,n):
                 newdigitsy.append(digitsy[i])
         newdigitsy[0] *= sgn
         return ''.join(list(map(str, newdigitsy)))
-
+#Truncates y from the nth digit on
+def plot(xs,str,g): #It tells apart between single tables of data and several of them
+    tipos_curva = ['Lineal','Cuadrática','Cúbica']
+    if type(xs) is dict:
+        vars = list(xs.keys())
+    else:
+        vars = list(xs[0].keys())
+    if isnan(str):
+        reg = np.polyfit(xs[vars[0]][0], xs[vars[1]][0], deg=g, full=False, cov=True)
+        corr_matrix = np.corrcoef(xs[vars[0]][0], xs[vars[1]][0])
+        corr = corr_matrix[0, 1]
+        R_sq = corr ** 2
+        trend = np.polyval(reg[0], xs[vars[0]][0])
+        fig, ax = plt.subplots()
+        ax.set_axisbelow(True)
+        ax.grid(color='gray', linestyle='-.', linewidth=0.5)
+        ax.plot(xs[vars[0]][0], trend, 'r',
+                label=f'{vars[1]}= %.5f $\cdot$ {vars[0]} + (%.3f); $R^2$ = %.3f' % ((reg[0])[0], (reg[0])[1], R_sq))
+        ax.scatter(xs[vars[0]][0], xs[vars[1]][0], label='Puntos Experimentales')
+        ax.set(xlabel=f'{vars[0]} {xs[vars[0]][2][0]}', ylabel=f'{vars[1]} {xs[vars[1]][2][0]}',
+               title=f'Dependencia {tipos_curva[g-1]} ({vars[0]}, {vars[1]}).')
+        ax.legend(loc='best')
+        fig.savefig(f'{str}.pdf')
+        plt.show()
+        errs_coefs = list()
+        for i in range(0,g+1):
+            errs_coefs.append((reg[1])[i,i])
+        dicto = {"Coeffs": reg[0], "Errs":errs_coefs, "Rsq": R_sq}
+    else:
+        n = int(str[-1])
+        reg = np.polyfit((xs[n])[vars[0]][0], (xs[n])[vars[1]][0], deg=g, full=False, cov=True)
+        corr_matrix = np.corrcoef((xs[n])[vars[0]][0], (xs[n])[vars[1]][0])
+        corr = corr_matrix[0, 1]
+        R_sq = corr ** 2
+        trend = np.polyval(reg[0], (xs[n])[vars[0]][0])
+        fig, ax = plt.subplots()
+        ax.set_axisbelow(True)
+        ax.grid(color='gray', linestyle='-.', linewidth=0.5)
+        ax.plot((xs[n])[vars[0]][0], trend, 'r',
+                label=f'{vars[1]}= %.5f $\cdot$ {vars[0]} + (%.3f); $R^2$ = %.3f' % ((reg[0])[0], (reg[0])[1], R_sq))
+        ax.scatter((xs[n])[vars[0]][0], (xs[n])[vars[1]][0], label='Puntos Experimentales')
+        ax.set(xlabel=f'{vars[0]} {xs[vars[0]][2][0]}', ylabel=f'{vars[1]} {xs[vars[1]][2][0]}',
+               title=f'Dependencia {tipos_curva[g-1]} ({vars[0]}, {vars[1]}). Paquete de medidas {n + 1}')
+        ax.legend(loc='best')
+        fig.savefig(f'Figura{n}.pdf')
+        plt.show()
+        errs_coefs = list()
+        for i in range(0, g + 1):
+            errs_coefs.append((reg[1])[i, i])
+        dicto = {"Coeffs": reg[0], "Errs": errs_coefs, "Rsq": R_sq}
+    return dicto
+#Given either a dictionary or array of dictionaries adequating to the shape
+#{"x axis variable":[[values],[erros],['(measure units)']], "y axis variables":[analog]},
+#a str indicating the desired name for the plot (in case ur plot is based on a single
+#data set/dictionary, enter a name with no numbers. Otherwise, type something
+#, but ensure to type as the last cell of that name the ordinal to which that data set
+#corresponds) and the degree g of the desired plotted polynomial (up to 3rd degree),
+#it returns a dictionary with the coefficients, its errors and R^2. It also saves your
+#plot inside the working directory
 def compute_errors(expr,dict):
     listsymbs = ''
     for i in dict.keys():
@@ -212,9 +219,14 @@ def compute_errors(expr,dict):
             f = lambdify([vartuple], Derivative(expr, simbolos[i]).doit())
             errors[j] += float(abs(f(valtuple[j]))) * ((dict[k])[1])[0]
     return errors
-
-theta, phi = symbols('theta phi')
-print(compute_errors(cos(theta) + sin(phi), {'theta':[[1,2,3],[0.1]], 'phi':[[4,5,6],[0.5]]}))
+#Advice: firstly, save a variable with all the variables featuring in the expression
+#u'll use as follows:
+#var1, var2, ... = symbols('var1 var2 ... ')
+#Then, given a similar directory shape as the one used for plot
+#< Note that the names of the vars must coincide with the
+#names of the vars within the dictionary >
+#and an expression Expr(vars) (no equality, just right term) relating the variables
+#of the dictionary, it returns an array featuring the errors of each y(vars) = Expr(vars)
 def print_error(x,y):
     if x == 0 and y == 0:
         return f'0 \u00B1 0'
@@ -239,7 +251,7 @@ def print_error(x,y):
             return f'{0} \u00B1 {truncate(y, postrunc(y))}'
         else:
             return f'{truncate(x, posnonnum2 + (postrunc(y) - posnonnum))} \u00B1 {truncate(y, postrunc(y))}'
-
+#Prints x +- y already truncated
 def csvfile(dict,str):
     vars = list(dict.keys())
     vartuple = (vars[0],)
@@ -265,3 +277,6 @@ def csvfile(dict,str):
                 for j in list(dict.keys()):
                     line[j] = print_error((dict[j])[0][i],(dict[j])[1][i])
                 w.writerow(line)
+#Saves a csvfile (so that later u can import it to the "Create LaTeX Tables" online tool)
+#resembling a table filled with x +- errx already truncated. Similar structure of the
+#dictionary
