@@ -3,6 +3,7 @@ from sympy import *
 import matplotlib.pyplot as plt
 import numpy as np
 import csv
+#Note: Copy and Paste this whole code into your document
 
 #Auxiliar Functions
 def isnan(str):
@@ -138,6 +139,8 @@ def truncate(y,n):
         newdigitsy[0] *= sgn
         return ''.join(list(map(str, newdigitsy)))
 #Truncates y from the nth digit on
+
+#Relevant Functions to Use
 def plot(xs,str,g): #It tells apart between single tables of data and several of them
     tipos_curva = ['Lineal','Cuadrática','Cúbica']
     if type(xs) is dict:
@@ -219,7 +222,7 @@ def compute_errors(expr,dict):
             f = lambdify([vartuple], Derivative(expr, simbolos[i]).doit())
             errors[j] += float(abs(f(valtuple[j]))) * ((dict[k])[1])[0]
     return errors
-#Advice: firstly, save a variable with all the variables featuring in the expression
+#Advice: firstly, save the set of variables featuring in the expression
 #u'll use as follows:
 #var1, var2, ... = symbols('var1 var2 ... ')
 #Then, given a similar directory shape as the one used for plot
