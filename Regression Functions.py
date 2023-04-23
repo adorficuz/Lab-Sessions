@@ -220,7 +220,7 @@ def compute_errors(expr,dict):
         errors.append(0)
         for i, k in enumerate(list(dict.keys())):
             f = lambdify([vartuple], Derivative(expr, simbolos[i]).doit())
-            errors[j] += float(abs(f(valtuple[j]))) * ((dict[k])[1])[0]
+            errors[j] += float(abs(f(valtuple[j]))) * ((dict[k])[1])[j]
     return errors
 #Advice: firstly, save the set of variables featuring in the expression
 #u'll use as follows:

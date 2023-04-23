@@ -220,7 +220,7 @@ def compute_errors(expr,dict):
         errors.append(0)
         for i, k in enumerate(list(dict.keys())):
             f = lambdify([vartuple], Derivative(expr, simbolos[i]).doit())
-            errors[j] += float(abs(f(valtuple[j]))) * ((dict[k])[1])[0]
+            errors[j] += float(abs(f(valtuple[j]))) * ((dict[k])[1])[j]
     return errors
 #Advice: firstly, save the set of variables featuring in the expression
 #u'll use as follows:
@@ -286,19 +286,24 @@ def csvfile(dict,str):
 
 ##Ley de Malus
 theta = symbols('theta')
-angles = {'theta':[list(np.linspace(float(pi/2),0,10)),[float(pi/180)]], 'V':[[0.5,1.6,4.6,9.4,14.8,20.3,25.9,30.8,33.1,34.2],[0.1]]}
-errscos = compute_errors((cos(theta))**2,angles)
-errscos[0] = 0
 errsV = list()
 for _ in range(0,10):
     errsV.append(0.1)
+errstheta = list()
+for _ in range(0,10):
+    errstheta.append(float(pi/180))
+angles = {'theta':[list(np.linspace(float(pi/2),0,10)),errstheta], 'V':[[0.5,1.6,4.6,9.4,14.8,20.3,25.9,30.8,33.1,34.2],errsV]}
+errscos = compute_errors((cos(theta))**2,angles)
+errscos[0] = 0
 costheta = list()
 for i in angles['theta'][0]:
     costheta.append(float((cos(i)))**2)
 costheta[0] = 0
 dom = {'cos²(θ)':[costheta,errscos, ['']], 'V':[[0.5,1.6,4.6,9.4,14.8,20.3,25.9,30.8,33.1,34.2],errsV,['(mV)']]}
 reg1 = plot(dom,'DepLincosV', 1)
-csvfile(dom,'dom')
+regdict = {'theta':[list(np.linspace(90,0,10)),list(map( lambda x : int(x),np.ones(10)))]}
+regdict.update(dom)
+csvfile(regdict,'dom')
 ##Sacarimetría
 vols = list()
 vols.append(90)
