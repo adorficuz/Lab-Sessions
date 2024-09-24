@@ -320,6 +320,6 @@ for _ in range(0,8):
 errdeltheta = list()
 for _ in range(0,8):
     errdeltheta.append(2)
-varangles = {'c':[concs,errc,['(g/cm³)']], 'Δθ':[list(map(lambda x: x-253,[213,223,227,231,236,238,240,241])),errdeltheta,['(º)']]}
+varangles = {'c':[concs,errc,['(g/cm³)']], 'Δθ':[list(map(lambda x: abs(x-253),[213,223,227,231,236,238,240,241])),errdeltheta,['(º)']]}
 reg2 = plot(varangles,'DepLinvarangles',1)
 csvfile(varangles,'varangles')
