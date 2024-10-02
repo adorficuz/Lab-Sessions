@@ -38,14 +38,17 @@ C1 = list()
 
 epsr = list()
 epsr1 = list()
-for i,j in C,C1:
+for i in C:
     epsr.append(i/Co)
-    epsr1.append(j/Co1)
+
+for i in C1:
+    epsr1.append(i/Co1)
 
 errsT = list()
 errsT1 = list()
-for i,j in T,T1:
+for i in T:
     errsT.append(1E-2)
+for j in T1:
     errsT1.append(1E-2)
 errC = 0
 errsepsr = list()
@@ -84,29 +87,46 @@ plt.show()
 
 Tc = 0
 Tc1 = 0
-
+errTc = 0
+errTc1 = 0
 paraT = list()
 paraT1 = list()
+errsparaT = list()
+errsparaT1 = list()
 
-for i in T:
+for i,j in T,errsT:
     if i < Tc:
         pass
     else:
         paraT.append(i)
-for i in T1:
+        errsparaT.append(j)
+for i,j in T1, errsT1:
     if i < Tc1:
         pass
     else:
         paraT1.append(i)
+        errsparaT1.append(j)
 
 InvDelT = list()
 InvDelT1 = list()
 
-for i,j in T,T1:
+for i in paraT:
     o = (i-Tc)**(-1)
-    o1 = (j-Tc1)**(-1)
     InvDelT.append(o)
-    InvDelT1.append(o1)
+
+for i in paraT1:
+    o = (i-Tc1)**(-1)
+    InvDelT1.append(o)
+
+errsInvDelT = list()
+errsInvDelT1 = list()
+
+for i,j in paraT, errsparaT:
+    o = sqrt((j/((i-Tc)**2))**2 + (errTc/((i-Tc)**2))**2)
+    errsInvDelT.append(o)
+for i,j in paraT1, errsparaT1:
+    o = sqrt((j/((i-Tc1)**2))**2 + (errTc1/((i-Tc1)**2))**2)
+    errsInvDelT1.append(o)
 
 discard = len(T) - len(paraT)
 discard1 = len(T1) - len(paraT1)
@@ -135,8 +155,8 @@ for i,j in epsr1,errsparaepsr1:
         errsparaepsr1.append(j)
 
 
-part2dicti = {'(T-Tc)^-1':[InvDelT,list(map(lambda x: 2*x, errsT)),'(ºC^-1)'],'Χe':[list(map(lambda x: x-1, paraepsr)),errsepsr,['(F/m)']]}
-part2dicti1 = {'(T-Tc)^-1':[InvDelT1,list(map(lambda x: 2*x, errsT1)),'(ºC^-1)'],'Χe':[list(map(lambda x: x-1, paraepsr1)),errsepsr1,['(F/m)']]}
+part2dicti = {'(T-Tc)^-1':[InvDelT,errsInvDelT,'(ºC^-1)'],'Χe':[list(map(lambda x: x-1, paraepsr)),errsepsr,['(F/m)']]}
+part2dicti1 = {'(T-Tc)^-1':[InvDelT1,errsInvDelT1,'(ºC^-1)'],'Χe':[list(map(lambda x: x-1, paraepsr1)),errsepsr1,['(F/m)']]}
 
 reg = plot(part2dicti,'DepLindicti',1)
 csvfile(dicti,'dicti')
