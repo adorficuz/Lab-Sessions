@@ -21,19 +21,44 @@ errCo = epso * sqrt((errA/d)**2 + ((A*errd)/(d**2))**2)
 Co1 = epso * (A1/d1)
 errCo1 = epso * sqrt((errA1/d1)**2 + ((A1*errd1)/(d1**2))**2)
 T = list()
+Tpri = list()
 C = list()
 
 for i in range(25,125,5):
     T.append(i)
+    Tpri.append(i)
 
 for i in range(121,136):
     T.append(i)
+    Tpri.append(i)
 
-for i in range(136,155,5):
+for i in range(140,155,5):
     T.append(i)
+    Tpri.append(i)
 
+Tpri.reverse()
+Tpri.pop(0)
+T += Tpri
 
 T1 = list()
+T1pri = list()
+
+for i in range(25,125,5):
+    T1.append(i)
+    T1pri.append(i)
+
+for i in range(121,136):
+    T1.append(i)
+    T1pri.append(i)
+
+for i in range(140,155,5):
+    T1.append(i)
+    T1pri.append(i)
+
+T1pri.reverse()
+T1pri.pop(0)
+T1 += T1pri
+
 C1 = list()
 
 epsr = list()
