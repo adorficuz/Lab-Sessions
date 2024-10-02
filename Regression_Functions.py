@@ -204,6 +204,7 @@ def compute_errors(expr,dict):
     for i in dict.keys():
         listsymbs += f'{i} '
     errors = list()
+    errorssqr = list()
     simbolos = symbols(listsymbs)[:]
     vartuple = (simbolos[0],)
     for j in range(1,len(simbolos)):
@@ -217,10 +218,11 @@ def compute_errors(expr,dict):
         for l in names:
             valtuple[j] += (((dict[l])[0])[j],)
     for j in range(0,len((dict[firstname])[0])):
-        errors.append(0)
+        errorssqr.append(0)
         for i, k in enumerate(list(dict.keys())):
             f = lambdify([vartuple], Derivative(expr, simbolos[i]).doit())
-            errors[j] += float(abs(f(valtuple[j]))) * ((dict[k])[1])[j]
+            errorssqr[j] += (float(abs(f(valtuple[j]))) * ((dict[k])[1])[j])**2
+        errors.append(sqrt(errorssqr[j]))
     return errors
 #Advice: firstly, save the set of variables featuring in the expression
 #u'll use as follows:
