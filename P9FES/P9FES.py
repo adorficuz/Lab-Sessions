@@ -62,6 +62,8 @@ for i in C1:
     errsepsr.append(o)
 dicti = {'T':[T,errsT,['(ºC)']],'εr':[epsr,errsepsr,['(F/m)']]}
 dicti1 = {'T':[T,errsT,['(ºC)']],'εr':[epsr,errsepsr,['(F/m)']]}
+csvfile(dicti,'dicti')
+csvfile(dicti1,'dicti1')
 
 vars = list(dicti.keys())
 fig, ax = plt.subplots()
@@ -159,7 +161,7 @@ part2dicti = {'(T-Tc)^-1':[InvDelT,errsInvDelT,'(ºC^-1)'],'Χe':[list(map(lambd
 part2dicti1 = {'(T-Tc)^-1':[InvDelT1,errsInvDelT1,'(ºC^-1)'],'Χe':[list(map(lambda x: x-1, paraepsr1)),errsepsr1,['(F/m)']]}
 
 reg = plot(part2dicti,'DepLindicti',1)
-csvfile(dicti,'dicti')
+csvfile(dicti,'part2dicti')
 
 reg1 = plot(part2dicti1,'DepLindicti1',1)
-csvfile(dicti1,'dicti1')
+csvfile(dicti1,'part2dicti1')
