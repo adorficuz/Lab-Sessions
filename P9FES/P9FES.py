@@ -22,9 +22,12 @@ Co1 = epso * (A1/d1)
 errCo1 = epso * sqrt((errA1/d1)**2 + ((A1*errd1)/(d1**2))**2)
 T = list()
 Tpri = list()
-C = list()
+C = [311,342,310,308,306,306,308,308,309,311,314,320,328,336,346,360,379,404,450,463,488,503,527,551,574,589,596,596,592,585,578,569,560,551,506,470,434,410,391,428,465,508,556,602,609,614,617,615,607,593,570,541,513,491,474,460,449,438,430,397,375,359,347,338,331,325,321,317,315,313]
 
-for i in range(25,125,5):
+C = list(map(lambda x : x* 10**(-12), C))
+
+
+for i in range(30,125,5):
     T.append(i)
     Tpri.append(i)
 
@@ -32,18 +35,25 @@ for i in range(121,136):
     T.append(i)
     Tpri.append(i)
 
-for i in range(140,155,5):
+for i in range(140,165,5):
     T.append(i)
     Tpri.append(i)
 
+for i in range(0,7):
+    Tpri.pop(0)
 Tpri.reverse()
 Tpri.pop(0)
-T += Tpri
+Ttot = T + Tpri
 
+Cmean = list()
+for i in range(0,8):
+    Cmean.append(C[i])
+for i in range(0,len(T)):
+    Cmean.append((C[8+i]+C[-1-i])/2)
 T1 = list()
 T1pri = list()
 
-for i in range(25,125,5):
+for i in range(30,125,5):
     T1.append(i)
     T1pri.append(i)
 
@@ -57,7 +67,7 @@ for i in range(140,155,5):
 
 T1pri.reverse()
 T1pri.pop(0)
-T1 += T1pri
+Ttot1 =  T1 + T1pri
 
 C1 = list()
 
@@ -72,10 +82,10 @@ for i in C1:
 errsT = list()
 errsT1 = list()
 for i in T:
-    errsT.append(1E-2)
+    errsT.append(1E-1)
 for j in T1:
-    errsT1.append(1E-2)
-errC = 0
+    errsT1.append(1E-1)
+errC = 1E-12
 errsepsr = list()
 for i in C:
     o = sqrt(((errC)/(Co))**2 + ((C[i] * errCo)/(Co**2))**2)
