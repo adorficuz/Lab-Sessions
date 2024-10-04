@@ -154,6 +154,7 @@ def plot(xs,str,g): #It tells apart between single tables of data and several of
         R_sq = corr ** 2
         trend = np.polyval(reg[0], xs[vars[0]][0])
         fig, ax = plt.subplots()
+        plt.ticklabel_format(axis='both', style='sci', scilimits=(-2, 3))
         ax.set_axisbelow(True)
         ax.grid(color='gray', linestyle='-.', linewidth=0.5)
         ax.plot(xs[vars[0]][0], trend, 'r',
@@ -176,6 +177,7 @@ def plot(xs,str,g): #It tells apart between single tables of data and several of
         R_sq = corr ** 2
         trend = np.polyval(reg[0], (xs[n])[vars[0]][0])
         fig, ax = plt.subplots()
+        plt.ticklabel_format(axis='both',style='sci',scilimits=(-2,3))
         ax.set_axisbelow(True)
         ax.grid(color='gray', linestyle='-.', linewidth=0.5)
         ax.plot((xs[n])[vars[0]][0], trend, 'r',
@@ -264,7 +266,7 @@ def csvfile(dict,str):
     for i in vars:
         vartuple += (i,)
     if isnan(str):
-        with open(f'table {vartuple}.csv', 'w+', newline='') as f:  # You will need 'wb' mode in Python 2.x
+        with open(f'table {str}.csv', 'w+', newline='') as f:  # You will need 'wb' mode in Python 2.x
             w = csv.DictWriter(f, dict.keys())
 
             for i in range(0, len(dict[list(dict.keys())[0]][0])):

@@ -48,32 +48,21 @@ Ttot = T + Tpri
 Cmean = list()
 for i in range(0,8):
     Cmean.append(C[i])
-for i in range(0,len(T)):
+for i in range(0,len(Tpri)):
     Cmean.append((C[8+i]+C[-1-i])/2)
 T1 = list()
-T1pri = list()
-
-for i in range(30,125,5):
-    T1.append(i)
-    T1pri.append(i)
-
-for i in range(121,136):
-    T1.append(i)
-    T1pri.append(i)
-
-for i in range(140,155,5):
-    T1.append(i)
-    T1pri.append(i)
-
-T1pri.reverse()
-T1pri.pop(0)
-Ttot1 =  T1 + T1pri
-
-C1 = list()
-
+for i in range(480,601,1):
+    if i == 523:
+        pass
+    else:
+        T1.append(i)
+T1.reverse()
+T1 = list(map(lambda x: x/10, T1))
+C1 = [146,143,141,140,139,139,139,140,140,141,141,142,143,144,145,146,147,148,150,151,152,154,155,157,159,160,162,164,166,168,170,173,175,178,180,183,186,189,193,195,198,202,206,210,215,218,223,227,232,237,241,248,254,260,268,276,284,293,301,312,323,332,346,357,375,390,407,429,449,478,508,535,570,614,658,735,812,869,904,1045,1207,1432,1909,2381,3349,4049,4009,3334,2482,2158,2064,1785,1583,1450,1314,1284,1138,1046,990,934,884,841,793,760,730,696,664,646,618,601,574,556,538,522,508,492,477,463,452,440]
+C1 = list(map(lambda x : x* 10**(-12), C1))
 epsr = list()
 epsr1 = list()
-for i in C:
+for i in Cmean:
     epsr.append(i/Co)
 
 for i in C1:
@@ -87,21 +76,23 @@ for j in T1:
     errsT1.append(1E-1)
 errC = 1E-12
 errsepsr = list()
-for i in C:
-    o = sqrt(((errC)/(Co))**2 + ((C[i] * errCo)/(Co**2))**2)
+for i in Cmean:
+    o = sqrt(((errC)/(Co))**2 + ((i * errCo)/(Co**2))**2)
     errsepsr.append(o)
 
 errsepsr1 = list()
 for i in C1:
-    o = sqrt(((errC)/(Co1))**2 + ((C1[i] * errCo1)/(Co1**2))**2)
-    errsepsr.append(o)
+    o = sqrt(((errC)/(Co1))**2 + ((i * errCo1)/(Co1**2))**2)
+    errsepsr1.append(o)
+
 dicti = {'T':[T,errsT,['(ºC)']],'εr':[epsr,errsepsr,['(F/m)']]}
-dicti1 = {'T':[T,errsT,['(ºC)']],'εr':[epsr,errsepsr,['(F/m)']]}
+dicti1 = {'T':[T1,errsT1,['(ºC)']],'εr':[epsr1,errsepsr1,['(F/m)']]}
 csvfile(dicti,'dicti')
-csvfile(dicti1,'dicti1')
+csvfile(dicti1,'dictione')
 
 vars = list(dicti.keys())
 fig, ax = plt.subplots()
+plt.ticklabel_format(axis='both',style='sci',scilimits=(-2,3))
 ax.set_axisbelow(True)
 ax.grid(color='gray', linestyle='-.', linewidth=0.5)
 ax.scatter(dicti[vars[0]][0], dicti[vars[1]][0], label='Puntos Experimentales')
@@ -113,36 +104,37 @@ plt.show()
 
 vars1 = list(dicti1.keys())
 fig1, ax1 = plt.subplots()
+plt.ticklabel_format(axis='both',style='sci',scilimits=(-2,3))
 ax1.set_axisbelow(True)
 ax1.grid(color='gray', linestyle='-.', linewidth=0.5)
 ax1.scatter(dicti1[vars1[0]][0], dicti1[vars1[1]][0], label='Puntos Experimentales')
 ax1.set(xlabel=f'{vars1[0]} {dicti1[vars1[0]][2][0]}', ylabel=f'{vars1[1]} {dicti1[vars1[1]][2][0]}',
-               title=f'Dependencia ({vars1[0]}, {vars1[1]}) para BaTiO3.')
+               title=f'Dependencia ({vars1[0]}, {vars1[1]}) para a.')
 ax1.legend(loc='best')
-fig1.savefig('Graf1.pdf')
+fig1.savefig('Graf2.pdf')
 plt.show()
 
-Tc = 0
-Tc1 = 0
-errTc = 0
-errTc1 = 0
+Tc = 131.9
+Tc1 = 51.35
+errTc = 0.1
+errTc1 = 0.1
 paraT = list()
 paraT1 = list()
 errsparaT = list()
 errsparaT1 = list()
 
-for i,j in T,errsT:
-    if i < Tc:
+for i in range(0,len(T)):
+    if T[i] < Tc:
         pass
     else:
-        paraT.append(i)
-        errsparaT.append(j)
-for i,j in T1, errsT1:
-    if i < Tc1:
+        paraT.append(T[i])
+        errsparaT.append(errsT[i])
+for i in range(0,len(T1)):
+    if T1[i] < Tc1:
         pass
     else:
-        paraT1.append(i)
-        errsparaT1.append(j)
+        paraT1.append(T1[i])
+        errsparaT1.append(errsT1[i])
 
 InvDelT = list()
 InvDelT1 = list()
@@ -158,45 +150,65 @@ for i in paraT1:
 errsInvDelT = list()
 errsInvDelT1 = list()
 
-for i,j in paraT, errsparaT:
-    o = sqrt((j/((i-Tc)**2))**2 + (errTc/((i-Tc)**2))**2)
+for i in range(0,len(paraT)):
+    o = sqrt((errsparaT[i]/((paraT[i]-Tc)**2))**2 + (errTc/((paraT[i]-Tc)**2))**2)
     errsInvDelT.append(o)
-for i,j in paraT1, errsparaT1:
-    o = sqrt((j/((i-Tc1)**2))**2 + (errTc1/((i-Tc1)**2))**2)
+for i in range(0,len(paraT1)):
+    o = sqrt((errsparaT1[i]/((paraT1[i]-Tc1)**2))**2 + (errTc1/((paraT1[i]-Tc1)**2))**2)
     errsInvDelT1.append(o)
 
 discard = len(T) - len(paraT)
 discard1 = len(T1) - len(paraT1)
 
-paraepsr = list()
-paraepsr1 = list()
-errsparaepsr = list()
-errsparaepsr1 = list()
+paraInvXe = list()
+paraInvXe1 = list()
+errsparaInvXe = list()
+errsparaInvXe1 = list()
 num = -1
 num1 = -1
 
-for i,j in epsr,errsepsr:
+for i in range(0,len(epsr)):
     num += 1
     if num < discard:
         pass
     else:
-        paraepsr.append(i)
-        errsparaepsr.append(j)
+        paraInvXe.append(1/(epsr[i]-1))
+        errsparaInvXe.append(errsepsr[i]/((epsr[i]-1)**2))
 
-for i,j in epsr1,errsparaepsr1:
+for i in range(0,len(epsr1)):
     num1 += 1
-    if num1 <= discard1:
+    if num1 < discard1:
         pass
     else:
-        paraepsr1.append(i)
-        errsparaepsr1.append(j)
+        paraInvXe1.append(1 / (epsr1[i] - 1))
+        errsparaInvXe1.append(errsepsr1[i] / ((epsr1[i] - 1) ** 2))
+
+parttwodicti = {'T':[paraT, errsparaT, ['(ºC)']], 'Χe^-1':[paraInvXe, errsparaInvXe, ['(m/F)']]}
+parttwodictione = {'T':[paraT1, errsparaT1, ['(ºC)']], 'Χe^-1':[paraInvXe1, errsparaInvXe1, ['(m/F)']]}
+
+reg = plot(parttwodicti, 'DepLindicti', 1)
+
+reg1 = plot(parttwodictione, 'DepLindictione', 1)
+
+for i in range(0,4):
+    paraInvXe.pop(0)
+    errsparaInvXe.pop(0)
+    paraT.pop(0)
+    errsparaT.pop(0)
 
 
-part2dicti = {'(T-Tc)^-1':[InvDelT,errsInvDelT,'(ºC^-1)'],'Χe':[list(map(lambda x: x-1, paraepsr)),errsepsr,['(F/m)']]}
-part2dicti1 = {'(T-Tc)^-1':[InvDelT1,errsInvDelT1,'(ºC^-1)'],'Χe':[list(map(lambda x: x-1, paraepsr1)),errsepsr1,['(F/m)']]}
+for i in range(0,53):
+    paraInvXe1.pop(-1)
+    errsparaInvXe1.pop(-1)
+    paraT1.pop(-1)
+    errsparaT1.pop(-1)
 
-reg = plot(part2dicti,'DepLindicti',1)
-csvfile(dicti,'part2dicti')
 
-reg1 = plot(part2dicti1,'DepLindicti1',1)
-csvfile(dicti1,'part2dicti1')
+parttwodictipri = {'T':[paraT,errsparaT,['(ºC)']],'Χe^-1':[paraInvXe,errsparaInvXe,['(m/F)']]}
+regpri = plot(parttwodictipri,'DepLindictipri',1)
+
+parttwodictiprione = {'T':[paraT1,errsparaT1,['(ºC)']],'Χe^-1':[paraInvXe1,errsparaInvXe1,['(m/F)']]}
+regpri1 = plot(parttwodictiprione,'DepLindictiprione',1)
+
+csvfile(parttwodictipri, 'parttwodictipri')
+csvfile(parttwodictiprione, 'parttwodictiprione')
