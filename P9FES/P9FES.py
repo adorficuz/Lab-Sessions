@@ -212,3 +212,12 @@ regpri1 = plot(parttwodictiprione,'DepLindictiprione',1)
 
 csvfile(parttwodictipri, 'parttwodictipri')
 csvfile(parttwodictiprione, 'parttwodictiprione')
+
+CurCt = (regpri['Coeffs'][0])**(-1)
+ErrCurCt = (regpri['Errs'][0]) * (regpri['Coeffs'][0])**(-2)
+Tcreg = -(regpri['Coeffs'][1])/(regpri['Coeffs'][0])
+ErrTcreg = sqrt(((regpri['Errs'][1])/(regpri['Coeffs'][0]))**2 + (((regpri['Coeffs'][1])*(regpri['Errs'][0]))/((regpri['Coeffs'][0])**2)**2))
+CurCt1 = (regpri1['Coeffs'][0])**(-1)
+ErrCurCt1 = (regpri1['Errs'][0]) * (regpri['Coeffs'][0])**(-2)
+Tcreg1 = -(regpri1['Coeffs'][1])/(regpri1['Coeffs'][0])
+ErrTcreg1 = sqrt(((regpri1['Errs'][1])/(regpri1['Coeffs'][0]))**2 + (((regpri1['Coeffs'][1])*(regpri1['Errs'][0]))/((regpri1['Coeffs'][0])**2)**2))
