@@ -5,15 +5,17 @@ import numpy as np
 import csv
 from Regression_Functions import *
 #Note: Copy and Paste this whole code into your document
+lb = -2
+ub = 3
 epso = 8.85E-12
 r = 4.28E-3
 errr = 1E-5
 A = np.pi * r**2
-errA = np.pi * 2 * errr
+errA = np.pi * 2 * errr * r
 d = 1.86E-3
 errd = 1E-5
 A1 = (10E-3)*(6E-3)
-errA1 = (5E-4)**2
+errA1 = sqrt(((5E-4)*(10E-3))**2 + ((5E-4)*(6E-3))**2)
 d1 = 2E-3
 errd1 = 5E-4
 Co = epso * (A/d)
@@ -68,12 +70,8 @@ for i in Cmean:
 for i in C1:
     epsr1.append(i/Co1)
 
-errsT = list()
-errsT1 = list()
-for i in T:
-    errsT.append(1E-1)
-for j in T1:
-    errsT1.append(1E-1)
+errsT = [0.1]
+errsT1 = [0.1]
 errC = 1E-12
 errsepsr = list()
 for i in Cmean:
@@ -85,10 +83,24 @@ for i in C1:
     o = sqrt(((errC)/(Co1))**2 + ((i * errCo1)/(Co1**2))**2)
     errsepsr1.append(o)
 
-dicti = {'T':[T,errsT,['(ºC)']],'εr':[epsr,errsepsr,['(F/m)']]}
-dicti1 = {'T':[T1,errsT1,['(ºC)']],'εr':[epsr1,errsepsr1,['(F/m)']]}
-csvfile(dicti,'dicti')
-csvfile(dicti1,'dictione')
+Cmean = list(map(lambda x: x * 1E12, Cmean))
+errsCmean = [1]
+
+for i in range(0,len(T)):
+    T[i] = float(T[i])
+
+for i in range(0,len(T1)):
+    T1[i] = float(T1[i])
+firstdict = {'T':[T,errsT,['(ºC)']],'C':[Cmean,errsCmean,['(pF)']],'εr':[epsr,errsepsr,['']]}
+csvfile(firstdict,'firstdict',lb,ub)
+C1 = list(map(lambda x: x*1E12, C1))
+errsC1 = [1]
+firstdict1 = {'T':[T1,errsT1,['(ºC)']],'C':[C1,errsC1,['(pF)']],'εr':[epsr1,errsepsr1,['']]}
+csvfile(firstdict1,'firstdictone',lb,ub)
+dicti = {'T':[T,errsT,['(ºC)']],'εr':[epsr,errsepsr,['']]}
+dicti1 = {'T':[T1,errsT1,['(ºC)']],'εr':[epsr1,errsepsr1,['']]}
+csvfile(dicti,'dicti',lb,ub)
+csvfile(dicti1,'dictione',lb,ub)
 
 vars = list(dicti.keys())
 fig, ax = plt.subplots()
@@ -120,42 +132,20 @@ errTc = 0.1
 errTc1 = 0.1
 paraT = list()
 paraT1 = list()
-errsparaT = list()
-errsparaT1 = list()
+errsparaT = [1]
+errsparaT1 = [1]
 
 for i in range(0,len(T)):
     if T[i] < Tc:
         pass
     else:
         paraT.append(T[i])
-        errsparaT.append(errsT[i])
 for i in range(0,len(T1)):
     if T1[i] < Tc1:
         pass
     else:
         paraT1.append(T1[i])
-        errsparaT1.append(errsT1[i])
 
-InvDelT = list()
-InvDelT1 = list()
-
-for i in paraT:
-    o = (i-Tc)**(-1)
-    InvDelT.append(o)
-
-for i in paraT1:
-    o = (i-Tc1)**(-1)
-    InvDelT1.append(o)
-
-errsInvDelT = list()
-errsInvDelT1 = list()
-
-for i in range(0,len(paraT)):
-    o = sqrt((errsparaT[i]/((paraT[i]-Tc)**2))**2 + (errTc/((paraT[i]-Tc)**2))**2)
-    errsInvDelT.append(o)
-for i in range(0,len(paraT1)):
-    o = sqrt((errsparaT1[i]/((paraT1[i]-Tc1)**2))**2 + (errTc1/((paraT1[i]-Tc1)**2))**2)
-    errsInvDelT1.append(o)
 
 discard = len(T) - len(paraT)
 discard1 = len(T1) - len(paraT1)
@@ -183,8 +173,8 @@ for i in range(0,len(epsr1)):
         paraInvXe1.append(1 / (epsr1[i] - 1))
         errsparaInvXe1.append(errsepsr1[i] / ((epsr1[i] - 1) ** 2))
 
-parttwodicti = {'T':[paraT, errsparaT, ['(ºC)']], 'Χe^-1':[paraInvXe, errsparaInvXe, ['(m/F)']]}
-parttwodictione = {'T':[paraT1, errsparaT1, ['(ºC)']], 'Χe^-1':[paraInvXe1, errsparaInvXe1, ['(m/F)']]}
+parttwodicti = {'T':[paraT, errsparaT, ['(ºC)']], 'Χe^-1':[paraInvXe, errsparaInvXe, ['']]}
+parttwodictione = {'T':[paraT1, errsparaT1, ['(ºC)']], 'Χe^-1':[paraInvXe1, errsparaInvXe1, ['']]}
 
 reg = plot(parttwodicti, 'DepLindicti', 1)
 
@@ -194,14 +184,12 @@ for i in range(0,4):
     paraInvXe.pop(0)
     errsparaInvXe.pop(0)
     paraT.pop(0)
-    errsparaT.pop(0)
 
 
 for i in range(0,53):
     paraInvXe1.pop(-1)
     errsparaInvXe1.pop(-1)
     paraT1.pop(-1)
-    errsparaT1.pop(-1)
 
 
 parttwodictipri = {'T':[paraT,errsparaT,['(ºC)']],'Χe^-1':[paraInvXe,errsparaInvXe,['(m/F)']]}
@@ -210,8 +198,8 @@ regpri = plot(parttwodictipri,'DepLindictipri',1)
 parttwodictiprione = {'T':[paraT1,errsparaT1,['(ºC)']],'Χe^-1':[paraInvXe1,errsparaInvXe1,['(m/F)']]}
 regpri1 = plot(parttwodictiprione,'DepLindictiprione',1)
 
-csvfile(parttwodictipri, 'parttwodictipri')
-csvfile(parttwodictiprione, 'parttwodictiprione')
+csvfile(parttwodictipri, 'parttwodictipri',lb,ub)
+csvfile(parttwodictiprione, 'parttwodictiprione',lb,ub)
 
 CurCt = (regpri['Coeffs'][0])**(-1)
 ErrCurCt = (regpri['Errs'][0]) * (regpri['Coeffs'][0])**(-2)

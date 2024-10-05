@@ -24,6 +24,40 @@ def equals(a,b):
     else:
         return False
 #Detects if two inputs are equal (any type)
+def fullstr(n):
+    xs = str()
+    x = str(n)
+    issci = 0
+    pose = -1
+    for i in range(0,len(x)):
+        if x[i] == 'e':
+            issci += 1
+            pose += 1
+            break
+        else:
+            pose += 1
+    if issci == 0:
+        for i in x:
+            xs += i
+    else:
+        m = int(x[-(len(x)-pose-1):])
+        k = str()
+        for i in x[0:pose]:
+            if i == '.':
+                continue
+            else:
+                k += i
+        if m < 0:
+            xs += '0.'
+            for i in range(0,abs(m)-1):
+                xs += '0'
+            xs += k
+        if m > 0:
+            xs += k
+            for i in range(0,abs(m)):
+                xs += '0'
+    return xs
+
 def dig(n):
     dig = list()
     for i in str(n):
@@ -42,9 +76,9 @@ def exception(x):
 #Detects exception for code print_error mapping is based on
 def postrunc(y):
     if exception(y) == 1:
-        return len(str(abs(y)))-1
+        return len(fullstr(abs(y)))-1
     else:
-        stry = str(abs(y))
+        stry = fullstr(abs(y))
         digitsy = list()
         for i, k in enumerate(stry):
             digitsy.append(k)
@@ -81,11 +115,11 @@ def postrunc(y):
 #Detects the position among the digits of the numerical string in which truncation begins
 def truncate(y,n):
     if exception(y) == 1:
-        return str(y)
+        return fullstr(y)
     else:
         sgn = int(y / abs(y))
         digitsy = list()
-        for i in str(abs(y)):
+        for i in fullstr(abs(y)):
             if i.isnumeric():
                 digitsy.append(int(i))
             else:
@@ -96,7 +130,7 @@ def truncate(y,n):
         digitsy.append(0)
         digitsy.append(0)
         digitsy.append(0)
-        if str(digitsy[n + 2]).isnumeric() == False:
+        if fullstr(digitsy[n + 2]).isnumeric() == False:
             if digitsy[n + 3] >= 5 and digitsy[n + 1] < 9:
                 digitsy[n + 1] += 1
             elif digitsy[n + 3] >= 5 and digitsy[n + 1] == 9:
@@ -104,7 +138,7 @@ def truncate(y,n):
                 digitsy[n + 1] = 0
             else:
                 digitsy[n + 1] += 0
-        elif str(digitsy[n]).isnumeric() == False:
+        elif fullstr(digitsy[n]).isnumeric() == False:
             if digitsy[n + 2] >= 5 and digitsy[n + 1] < 9:
                 digitsy[n + 1] += 1
             elif digitsy[n + 2] >= 5 and digitsy[n + 1] == 9:
@@ -120,9 +154,9 @@ def truncate(y,n):
                 digitsy[n + 1] = 0
             else:
                 digitsy[n + 1] += 0
-        posnonnum = 0
-        for i in str(abs(y)):
-            if i.isnumeric():
+        posnonnum = -1
+        for i in digitsy:
+            if str(i).isnumeric():
                 posnonnum += 1
             else:
                 break
@@ -130,14 +164,22 @@ def truncate(y,n):
             for i in list(range(n + 2, posnonnum + 1)):
                 digitsy[i] = 0
             newdigitsy = list()
-            for i in range(1, posnonnum + 1):
-                newdigitsy.append(digitsy[i])
+            if digitsy[0] == 1:
+                for i in range(0, posnonnum + 1):
+                    newdigitsy.append(digitsy[i])
+            else:
+                for i in range(1, posnonnum + 1):
+                    newdigitsy.append(digitsy[i])
         else:
             newdigitsy = list()
-            for i in range(1, n + 2):
-                newdigitsy.append(digitsy[i])
+            if digitsy[0] == 1:
+                for i in range(0, n+2):
+                    newdigitsy.append(digitsy[i])
+            else:
+                for i in range(1, n+2):
+                    newdigitsy.append(digitsy[i])
         newdigitsy[0] *= sgn
-        return ''.join(list(map(str, newdigitsy)))
+        return ''.join(list(map(fullstr, newdigitsy)))
 #Truncates y from the nth digit on
 
 #Relevant Functions to Use
@@ -183,13 +225,13 @@ def print_error(x,y):
         return f'0 \u00B1 {y}'
     else:
         posnonnum = 0
-        for i in str(abs(y)):
+        for i in fullstr(abs(y)):
             if i.isnumeric():
                 posnonnum += 1
             else:
                 break
         posnonnum2 = 0
-        for i in str(abs(x)):
+        for i in fullstr(abs(x)):
             if i.isnumeric():
                 posnonnum2 += 1
             else:
@@ -198,8 +240,60 @@ def print_error(x,y):
             return f'{0} \u00B1 {truncate(y, postrunc(y))}'
         else:
             return f'{truncate(x, posnonnum2 + (postrunc(y) - posnonnum))} \u00B1 {truncate(y, postrunc(y))}'
+
+def just_x_truncated_wrt_y(x,y):
+    if x == 0 and y == 0:
+        return f'0 \u00B1 0'
+    elif x != 0 and y == 0:
+        return f'{x} \u00B1 0'
+    elif x == 0 and y != 0:
+        return f'0 \u00B1 {y}'
+    else:
+        posnonnum = 0
+        for i in fullstr(abs(y)):
+            if i.isnumeric():
+                posnonnum += 1
+            else:
+                break
+        posnonnum2 = 0
+        for i in fullstr(abs(x)):
+            if i.isnumeric():
+                posnonnum2 += 1
+            else:
+                break
+        if (postrunc(y) - posnonnum) + posnonnum2 < 0:
+            return f'{0} \u00B1 {truncate(y, postrunc(y))}'
+        else:
+            return f'{truncate(x, posnonnum2 + (postrunc(y) - posnonnum))}'
 #Prints x +- y already truncated
-def csvfile(dict,str):
+def order(n):
+    if n > 1:
+        count = -1
+        x = fullstr(float(n))
+        for i in x:
+            if i == '.':
+                break
+            else:
+                count += 1
+    else:
+        x = fullstr(float(n))
+        count = -1
+        overdot = 0
+        for i in x:
+            if i == '.':
+                overdot += 1
+            else:
+                if overdot == 0:
+                    pass
+                else:
+                    if i == 0:
+                        count += -1
+                    else:
+                        break
+    return count
+
+
+def csvfile(dict,str,lb,ub):
     vars = list(dict.keys())
     vartuple = (vars[0],)
     vars.pop(0)
@@ -212,7 +306,35 @@ def csvfile(dict,str):
             for i in range(0, len(dict[list(dict.keys())[0]][0])):
                 line = {}
                 for j in list(dict.keys()):
-                    line[j] = print_error((dict[j])[0][i],(dict[j])[1][i])
+                    x = (dict[j])[0][i]
+                    if len((dict[j])[1]) > 1:
+                        y = (dict[j])[1][i]
+                        if order(x) < lb:
+                            swaporder = lb - order(x)
+                            x = x * 10 ** (swaporder)
+                            y = y * 10 ** (swaporder)
+                            line[j] = print_error(x, y)
+                        elif order(x) > ub:
+                            swaporder = ub - order(x)
+                            x = x * 10 ** (swaporder)
+                            y = y * 10 ** (swaporder)
+                            line[j] = print_error(x, y)
+                        else:
+                            line[j] = print_error(x, y)
+                    else:
+                        y = ((dict[j])[1])[0]
+                        if order(x) < lb:
+                            swaporder = lb - order(x)
+                            x = x * 10 ** (swaporder)
+                            y = y * 10 ** (swaporder)
+                            line[j] = just_x_truncated_wrt_y(x,y)
+                        elif order(x) > ub:
+                            swaporder = ub - order(x)
+                            x = x * 10 ** (swaporder)
+                            y = y * 10 ** (swaporder)
+                            line[j] = just_x_truncated_wrt_y(x, y)
+                        else:
+                            line[j] = just_x_truncated_wrt_y(x, y)
                 w.writerow(line)
     else:
         n = int(str[-1])
@@ -222,7 +344,35 @@ def csvfile(dict,str):
             for i in range(0, len(dict[list(dict.keys())[0]][0])):
                 line = {}
                 for j in list(dict.keys()):
-                    line[j] = print_error((dict[j])[0][i],(dict[j])[1][i])
+                    x = (dict[j])[0][i]
+                    if len((dict[j])[1]) > 1:
+                        y = (dict[j])[1][i]
+                        if order(x) < lb:
+                            swaporder = lb - order(x)
+                            x = x * 10 ** (swaporder)
+                            y = y * 10 ** (swaporder)
+                            line[j] = print_error(x, y)
+                        elif order(x) > ub:
+                            swaporder = ub - order(x)
+                            x = x * 10 ** (swaporder)
+                            y = y * 10 ** (swaporder)
+                            line[j] = print_error(x, y)
+                        else:
+                            line[j] = print_error(x, y)
+                    else:
+                        y = ((dict[j])[1])[0]
+                        if order(x) < lb:
+                            swaporder = lb - order(x)
+                            x = x * 10 ** (swaporder)
+                            y = y * 10 ** (swaporder)
+                            line[j] = just_x_truncated_wrt_y(x, y)
+                        elif order(x) > ub:
+                            swaporder = ub - order(x)
+                            x = x * 10 ** (swaporder)
+                            y = y * 10 ** (swaporder)
+                            line[j] = just_x_truncated_wrt_y(x, y)
+                        else:
+                            line[j] = just_x_truncated_wrt_y(x, y)
                 w.writerow(line)
 #Saves a csvfile (so that later u can import it to the "Create LaTeX Tables" online tool)
 #resembling a table filled with x +- errx already truncated. Similar structure of the
