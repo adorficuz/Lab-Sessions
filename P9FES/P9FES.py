@@ -149,8 +149,8 @@ errTc = 0.1
 errTc1 = 0.1
 paraT = list()
 paraT1 = list()
-errsparaT = [1]
-errsparaT1 = [1]
+errsparaT = [0.1]
+errsparaT1 = [0.1]
 
 for i in range(0,len(T)):
     if T[i] < Tc:
