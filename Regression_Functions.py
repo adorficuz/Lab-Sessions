@@ -57,6 +57,42 @@ def fullstr(n):
             for i in range(0,abs(m)):
                 xs += '0'
     return xs
+#returns the full string of a float without its scientific format
+def order(n):
+    if n > 1:
+        count = -1
+        x = fullstr(float(n))
+        for i in x:
+            if i == '.':
+                break
+            else:
+                count += 1
+    else:
+        x = fullstr(float(n))
+        count = -1
+        overdot = 0
+        for i in x:
+            if i == '.':
+                overdot += 1
+            else:
+                if overdot == 0:
+                    pass
+                else:
+                    if i == '0':
+                        count += -1
+                    else:
+                        break
+    return count
+#returns the kth power of 10 it corresponds to
+def sciformat(x,prec):
+    n = order(x)
+    x = fullstr(x*10**(-n))
+    xs = ''
+    for i in range(0,prec+2):
+        xs += x[i]
+    xs += f'E{n}'
+    return xs
+#returns a string featuring the scientific format of the number with a precision of prec decimals
 
 def dig(n):
     dig = list()
@@ -240,7 +276,7 @@ def print_error(x,y):
             return f'{0} \u00B1 {truncate(y, postrunc(y))}'
         else:
             return f'{truncate(x, posnonnum2 + (postrunc(y) - posnonnum))} \u00B1 {truncate(y, postrunc(y))}'
-
+#returns a string with x +- y truncated to the relevant decimals according to standard rounding algorithms
 def just_x_truncated_wrt_y(x,y):
     if x == 0 and y == 0:
         return f'0 \u00B1 0'
@@ -265,34 +301,7 @@ def just_x_truncated_wrt_y(x,y):
             return f'{0} \u00B1 {truncate(y, postrunc(y))}'
         else:
             return f'{truncate(x, posnonnum2 + (postrunc(y) - posnonnum))}'
-#Prints x +- y already truncated
-def order(n):
-    if n > 1:
-        count = -1
-        x = fullstr(float(n))
-        for i in x:
-            if i == '.':
-                break
-            else:
-                count += 1
-    else:
-        x = fullstr(float(n))
-        count = -1
-        overdot = 0
-        for i in x:
-            if i == '.':
-                overdot += 1
-            else:
-                if overdot == 0:
-                    pass
-                else:
-                    if i == 0:
-                        count += -1
-                    else:
-                        break
-    return count
-
-
+#returns just a string with x truncated wrt its error y. For tables where there's a common unique error
 def csvfile(dict,str,lb,ub):
     vars = list(dict.keys())
     vartuple = (vars[0],)
@@ -376,10 +385,10 @@ def csvfile(dict,str,lb,ub):
                 w.writerow(line)
 #Saves a csvfile (so that later u can import it to the "Create LaTeX Tables" online tool)
 #resembling a table filled with x +- errx already truncated. Similar structure of the
-#dictionary
-
-def plot(xs,str,g): #It tells apart between single tables of data and several of them
+#dictionary. lb and ub to set lower and upper boundary for scientific format. If the order of a number surpasses lb (negative) or ub (positive) then it will return its scientific format
+def plot(xs,ys,g): #It tells apart between single tables of data and several of them
     tipos_curva = ['Lineal','Cuadrática','Cúbica']
+    str = ys[0]
     if type(xs) is dict:
         vars = list(xs.keys())
     else:
@@ -395,16 +404,16 @@ def plot(xs,str,g): #It tells apart between single tables of data and several of
         ax.set_axisbelow(True)
         ax.grid(color='gray', linestyle='-.', linewidth=0.5)
         ax.plot(xs[vars[0]][0], trend, 'r',
-                label=f'{vars[1]}= %.5f $\cdot$ {vars[0]} + (%.3f); $R^2$ = %.3f' % ((reg[0])[0], (reg[0])[1], R_sq))
+                label=f'{vars[1]}= {sciformat((reg[0])[0],5)} $\cdot$ {vars[0]} + ({sciformat((reg[0])[1],3)}); $R^2$ = %.3f' % ( R_sq))
         ax.scatter(xs[vars[0]][0], xs[vars[1]][0], label='Puntos Experimentales')
         ax.set(xlabel=f'{vars[0]} {xs[vars[0]][2][0]}', ylabel=f'{vars[1]} {xs[vars[1]][2][0]}',
-               title=f'Dependencia {tipos_curva[g-1]} ({vars[0]}, {vars[1]}).')
+               title=f'Dependencia {tipos_curva[g-1]} ({vars[0]}, {vars[1]}) {ys[1]}.')
         ax.legend(loc='best')
         fig.savefig(f'{str}.pdf')
         plt.show()
         errs_coefs = list()
         for i in range(0,g+1):
-            errs_coefs.append((reg[1])[i,i])
+            errs_coefs.append(sqrt((reg[1])[i,i]))
         dicto = {"Coeffs": reg[0], "Errs":errs_coefs, "Rsq": R_sq}
     else:
         n = int(str[-1])
@@ -418,10 +427,10 @@ def plot(xs,str,g): #It tells apart between single tables of data and several of
         ax.set_axisbelow(True)
         ax.grid(color='gray', linestyle='-.', linewidth=0.5)
         ax.plot((xs[n])[vars[0]][0], trend, 'r',
-                label=f'{vars[1]}= %.5f $\cdot$ {vars[0]} + (%.3f); $R^2$ = %.3f' % ((reg[0])[0], (reg[0])[1], R_sq))
+                label=f'{vars[1]}= {sciformat((reg[0])[0],5)} $\cdot$ {vars[0]} + ({sciformat((reg[0])[1],3)}); $R^2$ = %.3f' % ( R_sq))
         ax.scatter((xs[n])[vars[0]][0], (xs[n])[vars[1]][0], label='Puntos Experimentales')
         ax.set(xlabel=f'{vars[0]} {xs[vars[0]][2][0]}', ylabel=f'{vars[1]} {xs[vars[1]][2][0]}',
-               title=f'Dependencia {tipos_curva[g-1]} ({vars[0]}, {vars[1]}). Paquete de medidas {n + 1}')
+               title=f'Dependencia {tipos_curva[g-1]} ({vars[0]}, {vars[1]}) {ys[1]}. Paquete de medidas {n + 1}')
         ax.legend(loc='best')
         fig.savefig(f'Figura{n}.pdf')
         plt.show()
@@ -432,9 +441,9 @@ def plot(xs,str,g): #It tells apart between single tables of data and several of
     return dicto
 #Given either a dictionary or array of dictionaries adequating to the shape
 #{"x axis variable":[[values],[erros],['(measure units)']], "y axis variables":[analog]},
-#a str indicating the desired name for the plot (in case ur plot is based on a single
+#an array indicating: 1st.- a string with the desired name for the plot (in case ur plot is based on a single
 #data set/dictionary, enter a name with no numbers. Otherwise, type something
 #, but ensure to type as the last cell of that name the ordinal to which that data set
-#corresponds) and the degree g of the desired plotted polynomial (up to 3rd degree),
+#corresponds) 2.- a string with the case of study (or a null string if there's no case) ... and the degree g of the desired plotted polynomial (up to 3rd degree),
 #it returns a dictionary with the coefficients, its errors and R^2. It also saves your
 #plot inside the working directory

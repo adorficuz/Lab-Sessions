@@ -3,6 +3,7 @@ from sympy import *
 import matplotlib.pyplot as plt
 import numpy as np
 import csv
+from scipy.optimize import curve_fit
 from Regression_Functions import *
 #Note: Copy and Paste this whole code into your document
 lb = -2
@@ -47,6 +48,22 @@ Tpri.reverse()
 Tpri.pop(0)
 Ttot = T + Tpri
 
+epsrdicto = list()
+for i in C:
+    epsrdicto.append(i/Co)
+dictio = {'T':[Ttot,[1],['(ºC)']], 'epsr':[epsrdicto,[1],['']]}
+varso = list(dictio.keys())
+figo, axo = plt.subplots()
+plt.ticklabel_format(axis='both',style='sci',scilimits=(-2,3))
+axo.set_axisbelow(True)
+axo.grid(color='gray', linestyle='-.', linewidth=0.5)
+axo.scatter((dictio[varso[0]][0])[0:len(T)], (dictio[varso[1]][0])[0:len(T)], label='Puntos Ida')
+axo.scatter((dictio[varso[0]][0])[len(T):len(T)+len(Tpri)], (dictio[varso[1]][0])[len(T):len(T)+len(Tpri)], label='Puntos Vuelta')
+axo.set(xlabel=f'{varso[0]} {dictio[varso[0]][2][0]}', ylabel=f'{varso[1]} {dictio[varso[1]][2][0]}',
+               title=f'Dependencia ({varso[0]}, {varso[1]}) para BaTiO3.')
+axo.legend(loc='best')
+figo.savefig('Graf0.pdf')
+plt.show()
 Cmean = list()
 for i in range(0,8):
     Cmean.append(C[i])
@@ -121,7 +138,7 @@ ax1.set_axisbelow(True)
 ax1.grid(color='gray', linestyle='-.', linewidth=0.5)
 ax1.scatter(dicti1[vars1[0]][0], dicti1[vars1[1]][0], label='Puntos Experimentales')
 ax1.set(xlabel=f'{vars1[0]} {dicti1[vars1[0]][2][0]}', ylabel=f'{vars1[1]} {dicti1[vars1[1]][2][0]}',
-               title=f'Dependencia ({vars1[0]}, {vars1[1]}) para a.')
+               title=f'Dependencia ({vars1[0]}, {vars1[1]}) para Sulfato de Triglicina.')
 ax1.legend(loc='best')
 fig1.savefig('Graf2.pdf')
 plt.show()
@@ -150,6 +167,8 @@ for i in range(0,len(T1)):
 discard = len(T) - len(paraT)
 discard1 = len(T1) - len(paraT1)
 
+paraepsr = list()
+paraepsr1 = list()
 paraInvXe = list()
 paraInvXe1 = list()
 errsparaInvXe = list()
@@ -162,23 +181,22 @@ for i in range(0,len(epsr)):
     if num < discard:
         pass
     else:
+        paraepsr.append(epsr[i])
         paraInvXe.append(1/(epsr[i]-1))
         errsparaInvXe.append(errsepsr[i]/((epsr[i]-1)**2))
 
-for i in range(0,len(epsr1)):
-    num1 += 1
-    if num1 < discard1:
-        pass
-    else:
-        paraInvXe1.append(1 / (epsr1[i] - 1))
-        errsparaInvXe1.append(errsepsr1[i] / ((epsr1[i] - 1) ** 2))
+for i in range(0,len(paraT1)):
+    paraepsr1.append(epsr1[i])
+    paraInvXe1.append(1 / (epsr1[i] - 1))
+    errsparaInvXe1.append(errsepsr1[i] / ((epsr1[i] - 1) ** 2))
 
 parttwodicti = {'T':[paraT, errsparaT, ['(ºC)']], 'Χe^-1':[paraInvXe, errsparaInvXe, ['']]}
 parttwodictione = {'T':[paraT1, errsparaT1, ['(ºC)']], 'Χe^-1':[paraInvXe1, errsparaInvXe1, ['']]}
 
-reg = plot(parttwodicti, 'DepLindicti', 1)
 
-reg1 = plot(parttwodictione, 'DepLindictione', 1)
+reg = plot(parttwodicti, ['DepLindicti','Titanato de Bario'], 1)
+
+reg1 = plot(parttwodictione, ['DepLindictione','Sulfato de Triglicina'], 1)
 
 for i in range(0,4):
     paraInvXe.pop(0)
@@ -186,17 +204,20 @@ for i in range(0,4):
     paraT.pop(0)
 
 
-for i in range(0,53):
+for i in range(0,6):
+    paraInvXe1.pop(0)
+    errsparaInvXe1.pop(0)
+    paraT1.pop(0)
+for i in range(0,4):
     paraInvXe1.pop(-1)
     errsparaInvXe1.pop(-1)
     paraT1.pop(-1)
 
-
 parttwodictipri = {'T':[paraT,errsparaT,['(ºC)']],'Χe^-1':[paraInvXe,errsparaInvXe,['(m/F)']]}
-regpri = plot(parttwodictipri,'DepLindictipri',1)
+regpri = plot(parttwodictipri,['DepLindictipri','Titanato de Bario'],1)
 
 parttwodictiprione = {'T':[paraT1,errsparaT1,['(ºC)']],'Χe^-1':[paraInvXe1,errsparaInvXe1,['(m/F)']]}
-regpri1 = plot(parttwodictiprione,'DepLindictiprione',1)
+regpri1 = plot(parttwodictiprione,['DepLindictiprione','Sulfato de Triglicina'],1)
 
 csvfile(parttwodictipri, 'parttwodictipri',lb,ub)
 csvfile(parttwodictiprione, 'parttwodictiprione',lb,ub)
@@ -204,8 +225,8 @@ csvfile(parttwodictiprione, 'parttwodictiprione',lb,ub)
 CurCt = (regpri['Coeffs'][0])**(-1)
 ErrCurCt = (regpri['Errs'][0]) * (regpri['Coeffs'][0])**(-2)
 Tcreg = -(regpri['Coeffs'][1])/(regpri['Coeffs'][0])
-ErrTcreg = sqrt(((regpri['Errs'][1])/(regpri['Coeffs'][0]))**2 + (((regpri['Coeffs'][1])*(regpri['Errs'][0]))/((regpri['Coeffs'][0])**2)**2))
+ErrTcreg = sqrt(((regpri['Errs'][1])/(regpri['Coeffs'][0]))**2 + ((((regpri['Coeffs'][1])*(regpri['Errs'][0]))/((regpri['Coeffs'][0])**2))**2))
 CurCt1 = (regpri1['Coeffs'][0])**(-1)
-ErrCurCt1 = (regpri1['Errs'][0]) * (regpri['Coeffs'][0])**(-2)
+ErrCurCt1 = (regpri1['Errs'][0]) * (regpri1['Coeffs'][0])**(-2)
 Tcreg1 = -(regpri1['Coeffs'][1])/(regpri1['Coeffs'][0])
-ErrTcreg1 = sqrt(((regpri1['Errs'][1])/(regpri1['Coeffs'][0]))**2 + (((regpri1['Coeffs'][1])*(regpri1['Errs'][0]))/((regpri1['Coeffs'][0])**2)**2))
+ErrTcreg1 = sqrt(((regpri1['Errs'][1])/(regpri1['Coeffs'][0]))**2 + ((((regpri1['Coeffs'][1])*(regpri1['Errs'][0]))/((regpri1['Coeffs'][0])**2))**2))
